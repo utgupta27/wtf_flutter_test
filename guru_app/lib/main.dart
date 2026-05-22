@@ -18,7 +18,14 @@ void main() async {
   Hive.registerAdapter(SessionLogAdapter());
   Hive.registerAdapter(RoomMetaAdapter());
 
-  await Hive.openBox(AppConstants.hiveBoxSettings);
+  await Future.wait([
+    Hive.openBox<dynamic>(AppConstants.hiveBoxSettings),
+    Hive.openBox<dynamic>(AppConstants.hiveBoxUsers),
+    Hive.openBox<dynamic>(AppConstants.hiveBoxMessages),
+    Hive.openBox<dynamic>(AppConstants.hiveBoxCallRequests),
+    Hive.openBox<dynamic>(AppConstants.hiveBoxSessionLogs),
+    Hive.openBox<dynamic>(AppConstants.hiveBoxRoomMeta),
+  ]);
 
   runApp(const ProviderScope(child: GuruApp()));
 }

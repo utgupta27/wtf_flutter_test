@@ -65,6 +65,26 @@ class Message extends Equatable {
         status: status ?? this.status,
       );
 
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'chatId': chatId,
+        'senderId': senderId,
+        'receiverId': receiverId,
+        'text': text,
+        'createdAt': createdAt.toIso8601String(),
+        'status': status.index,
+      };
+
+  factory Message.fromMap(Map<String, dynamic> map) => Message(
+        id: map['id'] as String,
+        chatId: map['chatId'] as String,
+        senderId: map['senderId'] as String,
+        receiverId: map['receiverId'] as String,
+        text: map['text'] as String,
+        createdAt: DateTime.parse(map['createdAt'] as String),
+        status: MessageStatus.values[map['status'] as int],
+      );
+
   @override
   List<Object?> get props => [id, chatId, senderId, receiverId, text, createdAt, status];
 }

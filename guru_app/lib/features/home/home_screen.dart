@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:guru_app/core/theme/app_theme.dart';
+import 'package:guru_app/features/auth/viewmodel/auth_viewmodel.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authViewModelProvider);
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: const Text('Hi, DK 👋'),
+        title: Text('Hi, ${user.valueOrNull?.name ?? '...'} 👋'),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 16),
