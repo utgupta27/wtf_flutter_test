@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:shared/shared.dart';
 
+import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
 import 'package:guru_app/features/sessions/viewmodel/session_logs_viewmodel.dart';
 
 class SessionLogsScreen extends ConsumerWidget {
@@ -13,8 +14,8 @@ class SessionLogsScreen extends ConsumerWidget {
     final asyncState = ref.watch(sessionLogsViewModelProvider);
     final vm = ref.read(sessionLogsViewModelProvider.notifier);
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('My Sessions')),
+    return GuruSubpageScaffold(
+      title: const Text('My Sessions'),
       body: asyncState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),

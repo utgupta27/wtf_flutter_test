@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
 import 'package:guru_app/features/calls/viewmodel/schedule_call_viewmodel.dart';
 
 class ScheduleCallScreen extends ConsumerWidget {
@@ -17,8 +18,8 @@ class ScheduleCallScreen extends ConsumerWidget {
       return _SuccessView(onDone: () => context.go('/home'));
     }
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Schedule a Call')),
+    return GuruSubpageScaffold(
+      title: const Text('Schedule a Call'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(

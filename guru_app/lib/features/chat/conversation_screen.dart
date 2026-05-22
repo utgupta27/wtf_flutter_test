@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shared/shared.dart';
 
 import 'package:guru_app/core/theme/app_theme.dart';
+import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
 import 'package:guru_app/features/chat/viewmodel/conversation_viewmodel.dart';
 
 class ConversationScreen extends ConsumerWidget {
@@ -17,10 +18,14 @@ class ConversationScreen extends ConsumerWidget {
     final vm = ref.read(conversationViewModelProvider(chatId).notifier);
 
     return state.when(
-      loading: () => const Scaffold(
+      loading: () => const GuruSubpageScaffold(
+        preferPop: true,
+        title: Text('Chat'),
         body: Center(child: CircularProgressIndicator()),
       ),
-      error: (e, _) => Scaffold(
+      error: (e, _) => GuruSubpageScaffold(
+        preferPop: true,
+        title: const Text('Chat'),
         body: Center(child: Text('Error: $e')),
       ),
       data: (conversation) => _ConversationView(
@@ -96,20 +101,18 @@ class _ConversationViewState extends State<_ConversationView> {
   @override
   Widget build(BuildContext context) {
     final conversation = widget.conversation;
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(SeedUsers.trainer.name),
-            if (conversation.isTyping)
-              const Text(
-                'typing...',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-              ),
-          ],
-        ),
+    return GuruSubpageScaffold(
+      preferPop: true,
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(SeedUsers.trainer.name),
+          if (conversation.isTyping)
+            const Text(
+              'typing...',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+            ),
+        ],
       ),
       body: Column(
         children: [

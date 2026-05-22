@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
 import 'package:guru_app/features/calls/viewmodel/video_call_viewmodel.dart';
 
 class VideoCallScreen extends ConsumerWidget {
@@ -50,8 +51,8 @@ class _PreJoinView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Ready to Join?')),
+    return GuruSubpageScaffold(
+      title: const Text('Ready to Join?'),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

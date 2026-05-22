@@ -92,7 +92,7 @@ class HomeActionCard extends StatelessWidget {
       shadowColor: Colors.black.withValues(alpha: 0.06),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: () => context.go(route),
+        onTap: () => context.push(route),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Row(
