@@ -4,8 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared/shared.dart';
 
 import 'package:trainer_app/features/chat/conversation_screen.dart';
-import 'package:trainer_app/providers/repository_providers.dart';
+import 'package:trainer_app/core/constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../../fakes/fake_repositories.dart';
+import '../../support/hive_test_setup.dart';
 
 const _chatId = 'chat-dk-aarav';
 
@@ -30,11 +32,24 @@ final _seedMessages = [
   ),
 ];
 
+SyncService _testSync() => SyncService(
+      baseUrl: 'http://127.0.0.1:1',
+      messagesBox: Hive.box(AppConstants.hiveBoxMessages),
+      callRequestsBox: Hive.box(AppConstants.hiveBoxCallRequests),
+      sessionLogsBox: Hive.box(AppConstants.hiveBoxSessionLogs),
+      roomMetaBox: Hive.box(AppConstants.hiveBoxRoomMeta),
+      outboxBox: Hive.box(AppConstants.hiveBoxSyncOutbox),
+      settingsBox: Hive.box(AppConstants.hiveBoxSettings),
+      typingBox: Hive.box(SyncConstants.hiveBoxSyncTyping),
+      networkEnabled: false,
+    );
+
 Widget _wrap({List<Message> messages = const []}) => ProviderScope(
       overrides: [
-        chatRepositoryProvider.overrideWithValue(
+        sharedChatRepositoryProvider.overrideWithValue(
           FakeChatRepository(messages: List.from(messages)),
         ),
+        sharedSyncServiceProvider.overrideWithValue(_testSync()),
       ],
       child: const MaterialApp(
         home: ConversationScreen(chatId: _chatId),
@@ -42,6 +57,10 @@ Widget _wrap({List<Message> messages = const []}) => ProviderScope(
     );
 
 void main() {
+  setUpAll(() async {
+    await initTrainerTestHive();
+  });
+
   group('ConversationScreen (trainer)', () {
     testWidgets('shows AppBar with member name DK', (tester) async {
       await tester.pumpWidget(_wrap());

@@ -6,6 +6,7 @@ import 'package:trainer_app/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:trainer_app/features/chat/chat_list_screen.dart';
 import 'package:trainer_app/features/chat/conversation_screen.dart';
 import 'package:trainer_app/features/home/home_screen.dart';
+import 'package:trainer_app/features/calls/upcoming_calls_screen.dart';
 import 'package:trainer_app/features/calls/video_call_screen.dart';
 import 'package:trainer_app/features/requests/requests_screen.dart';
 import 'package:trainer_app/features/sessions/session_logs_screen.dart';
@@ -60,6 +61,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/requests',
         builder: (context, state) => const RequestsScreen(),
+      ),
+      GoRoute(
+        path: '/upcoming',
+        builder: (context, state) => const UpcomingCallsScreen(),
       ),
       GoRoute(
         path: '/call/:requestId',

@@ -37,7 +37,11 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
       _hmsSDK.addUpdateListener(listener: this);
       _initialized = true;
     }
-    final token = await _fetchToken(roomCode: roomCode, userId: userId);
+    final token = await _fetchToken(
+      roomId: roomCode,
+      userId: userId,
+      role: 'trainer',
+    );
     if (token == null) {
       _controller.add(const VideoCallServiceEvent(
         VideoCallServiceEventType.error,
@@ -69,6 +73,11 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
   }
 
   @override
+  Future<void> flipCamera() async {
+    await _hmsSDK.switchCamera();
+  }
+
+  @override
   void dispose() {
     _hmsSDK.removeUpdateListener(listener: this);
     _hmsSDK.destroy();
@@ -76,18 +85,20 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
   }
 
   Future<String?> _fetchToken({
-    required String roomCode,
+    required String roomId,
     required String userId,
+    required String role,
   }) async {
     try {
       final client = HttpClient();
       final req = await client.postUrl(
-          Uri.parse('${AppConstants.tokenServerBaseUrl}/token'));
+        Uri.parse('${AppConstants.tokenServerBaseUrl}/token'),
+      );
       req.headers.contentType = ContentType.json;
       req.write(jsonEncode({
-        'roomCode': roomCode,
+        'roomId': roomId,
         'userId': userId,
-        'role': 'trainer',
+        'role': role,
       }));
       final res = await req.close();
       if (res.statusCode != 200) return null;
@@ -99,15 +110,17 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
   }
 
   @override
-  void onJoin({required HMSRoom room}) =>
-      _controller.add(const VideoCallServiceEvent(VideoCallServiceEventType.joined));
+  void onJoin({required HMSRoom room}) => _controller.add(
+        const VideoCallServiceEvent(VideoCallServiceEventType.joined),
+      );
 
   @override
-  void onHMSError({required HMSException error}) =>
-      _controller.add(VideoCallServiceEvent(
-        VideoCallServiceEventType.error,
-        message: error.message,
-      ));
+  void onHMSError({required HMSException error}) => _controller.add(
+        VideoCallServiceEvent(
+          VideoCallServiceEventType.error,
+          message: error.message,
+        ),
+      );
 
   @override
   void onPeerUpdate({required HMSPeer peer, required HMSPeerUpdate update}) {}
@@ -129,10 +142,14 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
   void onUpdateSpeakers({required List<HMSSpeaker> updateSpeakers}) {}
 
   @override
-  void onReconnecting() {}
+  void onReconnecting() => _controller.add(
+        const VideoCallServiceEvent(VideoCallServiceEventType.reconnecting),
+      );
 
   @override
-  void onReconnected() {}
+  void onReconnected() => _controller.add(
+        const VideoCallServiceEvent(VideoCallServiceEventType.reconnected),
+      );
 
   @override
   void onChangeTrackStateRequest({
@@ -151,10 +168,10 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
   }) {}
 
   @override
-  void onRoleChangeRequest({required HMSRoleChangeRequest roleChangeRequest}) {}
+  void onSessionStoreAvailable({HMSSessionStore? hmsSessionStore}) {}
 
   @override
-  void onSessionStoreAvailable({HMSSessionStore? hmsSessionStore}) {}
+  void onRoleChangeRequest({required HMSRoleChangeRequest roleChangeRequest}) {}
 
   @override
   void onPeerListUpdate({

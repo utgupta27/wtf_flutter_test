@@ -5,6 +5,7 @@ import 'package:shared/shared.dart';
 
 import 'package:trainer_app/app.dart';
 import 'package:trainer_app/core/constants.dart';
+import 'package:trainer_app/providers/sync_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,45 @@ void main() async {
     Hive.openBox(AppConstants.hiveBoxCallRequests),
     Hive.openBox(AppConstants.hiveBoxSessionLogs),
     Hive.openBox(AppConstants.hiveBoxRoomMeta),
+    Hive.openBox<dynamic>(AppConstants.hiveBoxSettings),
+    Hive.openBox<dynamic>(AppConstants.hiveBoxSyncOutbox),
+    Hive.openBox<dynamic>(SyncConstants.hiveBoxSyncTyping),
   ]);
 
-  runApp(const ProviderScope(child: TrainerApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedChatRepositoryProvider.overrideWith(
+          (ref) => HiveChatRepository(
+            Hive.box<dynamic>(AppConstants.hiveBoxMessages),
+          ),
+        ),
+        sharedSyncServiceProvider.overrideWith(
+          (ref) => ref.watch(syncServiceProvider),
+        ),
+      ],
+      child: const _SyncBootstrap(child: TrainerApp()),
+    ),
+  );
+}
+
+class _SyncBootstrap extends ConsumerStatefulWidget {
+  const _SyncBootstrap({required this.child});
+  final Widget child;
+
+  @override
+  ConsumerState<_SyncBootstrap> createState() => _SyncBootstrapState();
+}
+
+class _SyncBootstrapState extends ConsumerState<_SyncBootstrap> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(syncServiceProvider).startPolling();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

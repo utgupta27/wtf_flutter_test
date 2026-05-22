@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:shared/shared.dart';
 
+import 'package:trainer_app/core/constants.dart';
 import 'package:trainer_app/features/calls/video_call_screen.dart';
 import 'package:trainer_app/providers/repository_providers.dart';
 import '../../fakes/fake_repositories.dart';
+import '../../support/hive_test_setup.dart';
 
 const _requestId = 'request-001';
 
@@ -16,11 +20,42 @@ Widget _wrap({bool joinError = false}) => ProviderScope(
         sessionLogRepositoryProvider.overrideWithValue(
           FakeSessionLogRepository(),
         ),
+        callRequestRepositoryProvider.overrideWithValue(
+          FakeCallRequestRepository(
+            requests: [
+              CallRequest(
+                id: _requestId,
+                memberId: SyncConstants.memberId,
+                trainerId: SyncConstants.trainerId,
+                requestedAt: DateTime.now(),
+                scheduledFor: DateTime.now().add(const Duration(seconds: 30)),
+                note: 'Test',
+                status: CallRequestStatus.approved,
+              ),
+            ],
+          ),
+        ),
       ],
       child: const MaterialApp(home: VideoCallScreen(requestId: _requestId)),
     );
 
 void main() {
+  setUpAll(() async {
+    await initTrainerTestHive();
+  });
+
+  setUp(() async {
+    await Hive.box(AppConstants.hiveBoxRoomMeta).put(
+      _requestId,
+      const RoomMeta(
+        id: 'meta-1',
+        callRequestId: _requestId,
+        hmsRoomId: 'room-test',
+        hmsRoleMember: 'member',
+        hmsRoleTrainer: 'trainer',
+      ),
+    );
+  });
   group('VideoCallScreen (trainer) — pre-join', () {
     testWidgets('shows Ready to Join AppBar', (tester) async {
       await tester.pumpWidget(_wrap());

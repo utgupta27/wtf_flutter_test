@@ -24,6 +24,7 @@ class VideoCallScreen extends ConsumerWidget {
           state: state,
           onToggleMic: vm.toggleMic,
           onToggleCamera: vm.toggleCamera,
+          onFlip: vm.flipCamera,
           onLeave: vm.leave,
         ),
       VideoCallPhase.notes => _NotesView(
@@ -51,11 +52,11 @@ class _PreJoinView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Ready to Join?')),
-        body: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 24),
               const CircleAvatar(
                 radius: 48,
                 child: Text('DK', style: TextStyle(fontSize: 28)),
@@ -128,11 +129,13 @@ class _InCallView extends StatelessWidget {
     required this.state,
     required this.onToggleMic,
     required this.onToggleCamera,
+    required this.onFlip,
     required this.onLeave,
   });
   final VideoCallState state;
   final VoidCallback onToggleMic;
   final VoidCallback onToggleCamera;
+  final VoidCallback onFlip;
   final VoidCallback onLeave;
 
   String _formatDuration(int sec) {
@@ -147,6 +150,23 @@ class _InCallView extends StatelessWidget {
         body: SafeArea(
           child: Stack(
             children: [
+              if (state.isReconnecting)
+                Container(
+                  color: Colors.black54,
+                  child: const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: Colors.white),
+                        SizedBox(height: 12),
+                        Text(
+                          'Reconnecting…',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               Container(
                 color: const Color(0xFF1A1A2E),
                 child: const Center(
@@ -204,14 +224,20 @@ class _InCallView extends StatelessWidget {
                       onTap: onToggleMic,
                       label: state.isMicOn ? 'Mute' : 'Unmute',
                     ),
-                    const SizedBox(width: 24),
+                    const SizedBox(width: 16),
+                    _CallButton(
+                      icon: Icons.flip_camera_ios_rounded,
+                      onTap: onFlip,
+                      label: 'Flip',
+                    ),
+                    const SizedBox(width: 16),
                     _CallButton(
                       icon: Icons.call_end_rounded,
                       onTap: onLeave,
                       label: 'End',
                       backgroundColor: Colors.red,
                     ),
-                    const SizedBox(width: 24),
+                    const SizedBox(width: 16),
                     _CallButton(
                       icon: state.isCameraOn
                           ? Icons.videocam_rounded
