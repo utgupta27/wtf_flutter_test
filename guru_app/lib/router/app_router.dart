@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'package:shared/shared.dart';
+
 import 'package:guru_app/core/constants.dart';
 import 'package:guru_app/features/auth/auth_provider.dart';
+import 'package:guru_app/features/chat/conversation_screen.dart';
 import 'package:guru_app/features/home/home_screen.dart';
 import 'package:guru_app/features/onboarding/onboarding_screen.dart';
 
@@ -61,7 +64,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/chat',
-        builder: (context, state) => const _PlaceholderScreen('Chat List'),
+        builder: (context, state) => ConversationScreen(
+          currentUserId: SeedUsers.member.id,
+          otherUserName: SeedUsers.trainer.name,
+          messages: const [],
+          onSend: (_) {},
+        ),
       ),
       GoRoute(
         path: '/schedule',
