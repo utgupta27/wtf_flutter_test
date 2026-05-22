@@ -21,5 +21,8 @@ abstract class SyncConstants {
   /// Join opens this many minutes before scheduledFor (spec: 10).
   static const joinWindowMinutes = 10;
 
+  /// Call expires this many minutes after scheduledFor (moves to past sessions).
+  static const callExpiryMinutes = 60;
+
   static const hiveBoxSyncTyping = 'sync_typing';
 }

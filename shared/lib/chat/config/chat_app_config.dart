@@ -50,4 +50,14 @@ class ChatAppConfig {
       );
 
   bool isMine(String senderId) => senderId == localUserId;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatAppConfig &&
+          role == other.role &&
+          localUserId == other.localUserId;
+
+  @override
+  int get hashCode => Object.hash(role, localUserId);
 }

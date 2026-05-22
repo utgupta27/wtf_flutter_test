@@ -30,6 +30,9 @@ Widget _wrap({List<SessionLog> logs = const []}) => ProviderScope(
         sessionLogRepositoryProvider.overrideWithValue(
           FakeSessionLogRepository(logs: List.from(logs)),
         ),
+        callRequestRepositoryProvider.overrideWithValue(
+          FakeCallRequestRepository(),
+        ),
       ],
       child: const MaterialApp(home: SessionLogsScreen()),
     );

@@ -17,7 +17,11 @@ class UpcomingCallsViewModel extends AsyncNotifier<List<CallRequest>> {
     });
     final all = await ref.read(callRequestRepositoryProvider).getAll();
     return all
-        .where((r) => r.status == CallRequestStatus.approved)
+        .where(
+          (r) =>
+              r.status == CallRequestStatus.approved &&
+              !SyncService.isCallExpired(r.scheduledFor),
+        )
         .toList()
       ..sort((a, b) => a.scheduledFor.compareTo(b.scheduledFor));
   }

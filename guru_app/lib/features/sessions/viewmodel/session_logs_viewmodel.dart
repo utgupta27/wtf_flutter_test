@@ -10,10 +10,14 @@ class SessionLogsState {
   const SessionLogsState({
     this.filter = SessionFilter.all,
     this.logs = const [],
+    this.missedCalls = const [],
   });
 
   final SessionFilter filter;
   final List<SessionLog> logs;
+
+  /// Approved call requests whose join window has fully expired and were never logged.
+  final List<CallRequest> missedCalls;
 
   List<SessionLog> get filtered {
     final now = DateTime.now();
@@ -33,10 +37,12 @@ class SessionLogsState {
   SessionLogsState copyWith({
     SessionFilter? filter,
     List<SessionLog>? logs,
+    List<CallRequest>? missedCalls,
   }) =>
       SessionLogsState(
         filter: filter ?? this.filter,
         logs: logs ?? this.logs,
+        missedCalls: missedCalls ?? this.missedCalls,
       );
 }
 
@@ -46,9 +52,28 @@ class SessionLogsViewModel extends AsyncNotifier<SessionLogsState> {
     ref.listen(syncTickProvider, (prev, next) {
       ref.invalidateSelf();
     });
+    return _load();
+  }
+
+  Future<SessionLogsState> _load() async {
     final logs = await ref.read(sessionLogRepositoryProvider).getAll();
     logs.sort((a, b) => b.startedAt.compareTo(a.startedAt));
-    return SessionLogsState(logs: logs);
+
+    // Find approved calls whose window expired but have no matching session log.
+    final loggedRequestIds =
+        logs.map((l) => l.id.split('-').take(2).join('-')).toSet();
+    final allRequests = await ref.read(callRequestRepositoryProvider).getAll();
+    final missed = allRequests
+        .where(
+          (r) =>
+              r.status == CallRequestStatus.approved &&
+              SyncService.isCallExpired(r.scheduledFor) &&
+              !loggedRequestIds.any((id) => id.startsWith(r.id)),
+        )
+        .toList()
+      ..sort((a, b) => b.scheduledFor.compareTo(a.scheduledFor));
+
+    return SessionLogsState(logs: logs, missedCalls: missed);
   }
 
   void setFilter(SessionFilter filter) {
@@ -59,11 +84,7 @@ class SessionLogsViewModel extends AsyncNotifier<SessionLogsState> {
 
   Future<void> refresh() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      final logs = await ref.read(sessionLogRepositoryProvider).getAll();
-      logs.sort((a, b) => b.startedAt.compareTo(a.startedAt));
-      return SessionLogsState(logs: logs);
-    });
+    state = await AsyncValue.guard(_load);
   }
 }
 

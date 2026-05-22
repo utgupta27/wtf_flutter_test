@@ -483,12 +483,24 @@ class SyncService {
     }
   }
 
-  /// Whether join is allowed (within [SyncConstants.joinWindowMinutes] of start).
+  /// Whether join is allowed: window opens [joinWindowMinutes] before start
+  /// and closes [callExpiryMinutes] after start.
   static bool canJoinCall(DateTime scheduledFor) {
     final now = DateTime.now();
     final openAt = scheduledFor.subtract(
       const Duration(minutes: SyncConstants.joinWindowMinutes),
     );
-    return !now.isBefore(openAt);
+    final expiresAt = scheduledFor.add(
+      const Duration(minutes: SyncConstants.callExpiryMinutes),
+    );
+    return !now.isBefore(openAt) && now.isBefore(expiresAt);
+  }
+
+  /// Whether a call has expired (past join window).
+  static bool isCallExpired(DateTime scheduledFor) {
+    final expiresAt = scheduledFor.add(
+      const Duration(minutes: SyncConstants.callExpiryMinutes),
+    );
+    return DateTime.now().isAfter(expiresAt);
   }
 }

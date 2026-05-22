@@ -159,6 +159,7 @@ class _SlotGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final now = DateTime.now();
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -170,6 +171,10 @@ class _SlotGrid extends StatelessWidget {
           s.hour,
           s.minute,
         );
+
+        // Hide slots that are in the past for the selected day.
+        if (slotTime.isBefore(now)) return const SizedBox.shrink();
+
         final isSelected = selectedSlot != null &&
             selectedSlot!.year == slotTime.year &&
             selectedSlot!.month == slotTime.month &&

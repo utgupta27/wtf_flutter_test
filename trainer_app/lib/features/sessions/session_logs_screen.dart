@@ -18,21 +18,107 @@ class SessionLogsScreen extends ConsumerWidget {
       body: asyncState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
-        data: (logs) => logs.isEmpty
-            ? const Center(child: Text('No sessions yet'))
-            : RefreshIndicator(
-                onRefresh: vm.refresh,
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: logs.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
-                  itemBuilder: (context, i) => SessionLogTile(
-                    log: logs[i],
-                    onAddNote: (note) => vm.addNote(logs[i].id, note),
+        data: (state) {
+          final hasSessions = state.logs.isNotEmpty;
+          final hasMissed = state.missedCalls.isNotEmpty;
+          if (!hasSessions && !hasMissed) {
+            return const Center(child: Text('No sessions yet'));
+          }
+          return RefreshIndicator(
+            onRefresh: vm.refresh,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                if (hasSessions) ...[
+                  ...state.logs.map(
+                    (log) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: SessionLogTile(
+                        log: log,
+                        onAddNote: (note) => vm.addNote(log.id, note),
+                      ),
+                    ),
                   ),
-                ),
+                ],
+                if (hasMissed) ...[
+                  if (hasSessions) const SizedBox(height: 8),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      'Missed',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  ...state.missedCalls.map(
+                    (r) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: _MissedCallTile(request: r),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _MissedCallTile extends StatelessWidget {
+  const _MissedCallTile({required this.request});
+  final CallRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final dateStr =
+        DateFormat('EEE, d MMM · h:mm a').format(request.scheduledFor);
+    return Card(
+      color: Colors.orange.shade50,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: Colors.orange.shade100,
+              child: const Icon(Icons.event_busy_rounded, color: Colors.orange),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Missed session — DK',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    dateStr,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  if (request.note.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      request.note,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
               ),
+            ),
+            const Chip(
+              label: Text('Missed', style: TextStyle(fontSize: 11)),
+              backgroundColor: Color(0x1AFF9800),
+            ),
+          ],
+        ),
       ),
     );
   }
