@@ -5,8 +5,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:guru_app/core/constants.dart';
 import 'package:guru_app/features/auth/auth_provider.dart';
+import 'package:guru_app/features/onboarding/onboarding_screen.dart';
 
-// Placeholder screens — replaced in subsequent issues
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen(this.title);
   final String title;
@@ -46,7 +46,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/onboarding',
-        builder: (context, state) => const _PlaceholderScreen('Onboarding'),
+        builder: (context, state) => OnboardingScreen(
+          onComplete: () {
+            Hive.box(AppConstants.hiveBoxSettings)
+                .put(AppConstants.settingsKeyOnboardingDone, true);
+            context.go('/home');
+          },
+        ),
       ),
       GoRoute(
         path: '/home',
