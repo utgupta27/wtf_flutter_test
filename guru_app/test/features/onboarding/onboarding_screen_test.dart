@@ -8,6 +8,7 @@ import '../../fakes/fake_repositories.dart';
 
 Widget _wrap({bool onboardingDone = false}) => ProviderScope(
       overrides: [
+        authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
         onboardingRepositoryProvider
             .overrideWithValue(FakeOnboardingRepository(done: onboardingDone)),
       ],
@@ -34,27 +35,46 @@ void main() {
       expect(find.text('Chat, Schedule & Call'), findsOneWidget);
     });
 
-    testWidgets('page indicator shows 2 dots', (tester) async {
+    testWidgets('page indicator shows 3 dots', (tester) async {
       await tester.pumpWidget(_wrap());
-      expect(find.byType(OnboardingDot), findsNWidgets(2));
+      expect(find.byType(OnboardingDot), findsNWidgets(3));
     });
 
-    testWidgets('first dot is active on launch', (tester) async {
-      await tester.pumpWidget(_wrap());
-      final dots =
-          tester.widgetList<OnboardingDot>(find.byType(OnboardingDot)).toList();
-      expect(dots[0].active, isTrue);
-      expect(dots[1].active, isFalse);
-    });
-
-    testWidgets('second dot becomes active after Next', (tester) async {
+    testWidgets('Continue opens profile setup with DK prefilled', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.tap(find.text('Next'));
       await tester.pumpAndSettle();
-      final dots =
-          tester.widgetList<OnboardingDot>(find.byType(OnboardingDot)).toList();
-      expect(dots[0].active, isFalse);
-      expect(dots[1].active, isTrue);
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      expect(find.text('Set up your profile'), findsOneWidget);
+      expect(find.text('DK'), findsOneWidget);
+      expect(find.text('Aarav'), findsOneWidget);
+      expect(find.text('Priya'), findsOneWidget);
+    });
+
+    testWidgets('selecting trainer and Get Started saves profile', (tester) async {
+      final authRepo = FakeAuthRepository();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authRepositoryProvider.overrideWithValue(authRepo),
+            onboardingRepositoryProvider
+                .overrideWithValue(FakeOnboardingRepository()),
+          ],
+          child: const MaterialApp(home: OnboardingScreen()),
+        ),
+      );
+      await tester.tap(find.text('Next'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Priya'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Get Started'));
+      await tester.pumpAndSettle();
+      final saved = await authRepo.getUser('member-dk-001');
+      expect(saved?.name, 'DK');
+      expect(saved?.assignedTrainerId, 'trainer-priya-001');
     });
   });
 }
