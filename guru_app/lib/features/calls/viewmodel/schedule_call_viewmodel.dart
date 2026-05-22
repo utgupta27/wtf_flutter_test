@@ -59,6 +59,22 @@ class ScheduleCallViewModel extends Notifier<ScheduleCallState> {
   void selectSlot(DateTime slot) =>
       state = state.copyWith(selectedSlot: slot, error: null);
 
+  /// Sets date and time to [now + 1 minute] for quick test scheduling.
+  void pickOneMinuteFromNow() {
+    final slot = DateTime.now().add(const Duration(minutes: 1));
+    state = state.copyWith(
+      selectedDate: DateTime(slot.year, slot.month, slot.day),
+      selectedSlot: slot,
+      error: null,
+    );
+  }
+
+  /// Schedules a call one minute from now (same validation as [submit]).
+  Future<void> scheduleInOneMinute() async {
+    pickOneMinuteFromNow();
+    await submit();
+  }
+
   void updateNote(String note) =>
       state = state.copyWith(note: note, error: null);
 

@@ -64,6 +64,18 @@ void main() {
       expect(find.text('Request Call'), findsOneWidget);
     });
 
+    testWidgets('schedule in 1 minute button submits request', (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pump();
+
+      await tester.ensureVisible(find.text('Schedule in 1 minute'));
+      await tester.pump();
+      await tester.tap(find.text('Schedule in 1 minute'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(UiCopy.callRequestedWaiting), findsWidgets);
+    });
+
     testWidgets('shows error when submitting without a time slot', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();

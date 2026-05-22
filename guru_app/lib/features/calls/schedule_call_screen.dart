@@ -29,6 +29,23 @@ class ScheduleCallScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            OutlinedButton.icon(
+              onPressed: state.isSubmitting
+                  ? null
+                  : () async {
+                      await vm.scheduleInOneMinute();
+                      if (context.mounted &&
+                          ref.read(scheduleCallViewModelProvider).submitted) {
+                        AppErrorSurface.showInfo(
+                          context,
+                          UiCopy.callRequestedWaiting,
+                        );
+                      }
+                    },
+              icon: const Icon(Icons.timer_outlined, size: 20),
+              label: const Text('Schedule in 1 minute'),
+            ),
+            const SizedBox(height: 16),
             const Text(
               'Pick a day',
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
