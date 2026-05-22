@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared/shared.dart';
 
+import 'package:guru_app/core/theme/app_theme.dart';
 import 'package:guru_app/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:guru_app/features/calls/schedule_call_screen.dart';
 import 'package:guru_app/features/calls/video_call_screen.dart';
@@ -12,39 +14,67 @@ import 'package:guru_app/features/home/home_screen.dart';
 import 'package:guru_app/features/onboarding/onboarding_screen.dart';
 import 'package:guru_app/features/onboarding/viewmodel/onboarding_viewmodel.dart';
 
-class _PlaceholderScreen extends StatelessWidget {
-  const _PlaceholderScreen(this.title);
-  final String title;
+/// Pure redirect logic — used by GoRouter and unit tests.
+String? resolveGuruRedirect({
+  required AsyncValue<User> authState,
+  required bool onboardingDone,
+  required String matchedLocation,
+}) {
+  if (authState.isLoading) {
+    return '/splash';
+  }
+  if (!onboardingDone && matchedLocation != '/onboarding') {
+    return '/onboarding';
+  }
+  if (onboardingDone && matchedLocation == '/onboarding') {
+    return '/home';
+  }
+  if (onboardingDone && matchedLocation == '/splash') {
+    return '/home';
+  }
+  return null;
+}
+
+class _SplashScreen extends StatelessWidget {
+  const _SplashScreen();
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(title)),
-        body: Center(child: Text(title)),
-      );
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: AppColors.surface,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircularProgressIndicator(color: AppColors.primary),
+            SizedBox(height: 24),
+            Text(
+              'Loading…',
+              style: TextStyle(fontSize: 16, color: AppColors.subtle),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authViewModelProvider);
-  final onboardingDone = ref.watch(onboardingViewModelProvider);
-
-  return GoRouter(
+  final router = GoRouter(
     initialLocation: '/splash',
     redirect: (context, state) {
-      if (authState.isLoading) {
-        return '/splash';
-      }
-      if (!onboardingDone && state.matchedLocation != '/onboarding') {
-        return '/onboarding';
-      }
-      if (onboardingDone && state.matchedLocation == '/onboarding') {
-        return '/home';
-      }
-      return null;
+      final authState = ref.read(authViewModelProvider);
+      final onboardingDone = ref.read(onboardingViewModelProvider);
+      return resolveGuruRedirect(
+        authState: authState,
+        onboardingDone: onboardingDone,
+        matchedLocation: state.matchedLocation,
+      );
     },
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const _PlaceholderScreen(''),
+        builder: (context, state) => const _SplashScreen(),
       ),
       GoRoute(
         path: '/onboarding',
@@ -82,4 +112,9 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+
+  ref.listen(authViewModelProvider, (_, _) => router.refresh());
+  ref.listen(onboardingViewModelProvider, (_, _) => router.refresh());
+  ref.onDispose(router.dispose);
+  return router;
 });

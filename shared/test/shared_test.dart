@@ -16,6 +16,16 @@ void main() {
     });
   });
 
+  group('SeedTrainers', () {
+    test('lists seeded trainers including Aarav', () {
+      expect(SeedTrainers.list.length, greaterThanOrEqualTo(3));
+      expect(
+        SeedTrainers.list.map((t) => t.id),
+        contains('trainer-aarav-001'),
+      );
+    });
+  });
+
   group('Message', () {
     test('default status is sending', () {
       final msg = Message(
