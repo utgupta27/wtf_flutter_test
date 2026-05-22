@@ -6,6 +6,7 @@ import 'package:trainer_app/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:trainer_app/features/chat/chat_list_screen.dart';
 import 'package:trainer_app/features/chat/conversation_screen.dart';
 import 'package:trainer_app/features/home/home_screen.dart';
+import 'package:trainer_app/features/requests/requests_screen.dart';
 
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen(this.title);
@@ -56,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/requests',
-        builder: (context, state) => const _PlaceholderScreen('Requests'),
+        builder: (context, state) => const RequestsScreen(),
       ),
       GoRoute(
         path: '/sessions',
