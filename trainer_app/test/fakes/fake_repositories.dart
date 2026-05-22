@@ -1,0 +1,134 @@
+import 'dart:async';
+
+import 'package:shared/shared.dart';
+
+import 'package:trainer_app/features/auth/data/auth_repository.dart';
+import 'package:trainer_app/features/calls/service/video_call_service.dart';
+import 'package:trainer_app/features/requests/data/call_request_repository.dart';
+import 'package:trainer_app/features/sessions/data/session_log_repository.dart';
+
+class FakeSessionLogRepository implements SessionLogRepository {
+  FakeSessionLogRepository({List<SessionLog>? logs}) : _logs = logs ?? [];
+  final List<SessionLog> _logs;
+
+  @override
+  Future<List<SessionLog>> getAll() async => List.from(_logs);
+
+  @override
+  Future<void> save(SessionLog log) async => _logs.add(log);
+
+  @override
+  Future<void> addTrainerNote(String id, String note) async {
+    final i = _logs.indexWhere((l) => l.id == id);
+    if (i != -1) _logs[i] = _logs[i].copyWith(trainerNotes: note);
+  }
+}
+
+class FakeVideoCallService implements VideoCallService {
+  FakeVideoCallService({this.joinError});
+  final String? joinError;
+
+  final StreamController<VideoCallServiceEvent> _controller =
+      StreamController<VideoCallServiceEvent>.broadcast();
+  bool _micEnabled = true;
+  bool _cameraEnabled = true;
+
+  @override
+  Stream<VideoCallServiceEvent> get events => _controller.stream;
+
+  @override
+  bool get isMicEnabled => _micEnabled;
+
+  @override
+  bool get isCameraEnabled => _cameraEnabled;
+
+  @override
+  Future<void> join({
+    required String roomCode,
+    required String userId,
+    required String username,
+    required String role,
+  }) async {
+    if (joinError != null) {
+      _controller.add(
+          VideoCallServiceEvent(VideoCallServiceEventType.error, message: joinError));
+      return;
+    }
+    _controller.add(const VideoCallServiceEvent(VideoCallServiceEventType.joined));
+  }
+
+  @override
+  Future<void> leave() async =>
+      _controller.add(const VideoCallServiceEvent(VideoCallServiceEventType.left));
+
+  @override
+  Future<void> toggleMic() async {
+    _micEnabled = !_micEnabled;
+    _controller.add(VideoCallServiceEvent(
+      VideoCallServiceEventType.deviceStateUpdated,
+      isMicOn: _micEnabled,
+      isCameraOn: _cameraEnabled,
+    ));
+  }
+
+  @override
+  Future<void> toggleCamera() async {
+    _cameraEnabled = !_cameraEnabled;
+    _controller.add(VideoCallServiceEvent(
+      VideoCallServiceEventType.deviceStateUpdated,
+      isMicOn: _micEnabled,
+      isCameraOn: _cameraEnabled,
+    ));
+  }
+
+  @override
+  Future<void> flipCamera() async {}
+
+  @override
+  void dispose() => _controller.close();
+}
+
+class FakeCallRequestRepository implements CallRequestRepository {
+  FakeCallRequestRepository({List<CallRequest>? requests})
+      : _requests = requests ?? [];
+  final List<CallRequest> _requests;
+
+  @override
+  Future<List<CallRequest>> getAll() async => List.from(_requests);
+
+  @override
+  Future<void> updateStatus(String id, CallRequestStatus status) async {
+    final i = _requests.indexWhere((r) => r.id == id);
+    if (i != -1) _requests[i] = _requests[i].copyWith(status: status);
+  }
+}
+
+class FakeChatRepository implements ChatRepository {
+  FakeChatRepository({List<Message>? messages}) : _messages = messages ?? [];
+  final List<Message> _messages;
+
+  @override
+  Future<List<Message>> getMessages(String chatId) async =>
+      _messages.where((m) => m.chatId == chatId).toList()
+        ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+  @override
+  Future<void> saveMessage(Message message) async => _messages.add(message);
+
+  @override
+  Future<void> updateStatus(String messageId, MessageStatus status) async {
+    final i = _messages.indexWhere((m) => m.id == messageId);
+    if (i != -1) _messages[i] = _messages[i].copyWith(status: status);
+  }
+}
+
+class FakeAuthRepository implements AuthRepository {
+  FakeAuthRepository({User? user}) : _user = user ?? SeedUsers.trainer;
+  User _user;
+
+  @override
+  Future<User?> getUser(String id) async => _user.id == id ? _user : null;
+
+  @override
+  Future<void> saveUser(User user) async => _user = user;
+}

@@ -53,6 +53,23 @@ CallNotifier
               └── In-call UI widgets
 ```
 
+## Cross-app sync (Phase 2)
+
+```
+guru_app / trainer_app
+  └── shared/lib/chat — ChatListPage, ConversationPage, viewmodels, widgets
+  └── SyncService (shared) — Hive outbox + 1.5s HTTP poll
+        └── token_server in-memory store
+              ├── /sync/messages (POST ack → sent; PATCH read)
+              ├── /sync/typing (ephemeral presence)
+              ├── /sync/call-requests
+              ├── /sync/session-logs
+              └── /rooms (on approve → hmsRoomId stub room-{requestId})
+```
+
+Local-first: UI reads Hive immediately; sync merges server deltas by entity `id`.
+Join window for reviewer demo: `SyncConstants.devJoinWindowMinutes = 1` (production target: 10).
+
 ## Personas (pre-seeded, no real auth)
 
 | App | User | ID | Role | Assigned To |

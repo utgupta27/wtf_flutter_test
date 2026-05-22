@@ -70,3 +70,5 @@ lcov.info
 
 # macOS
 .DS_Store
+
+.env

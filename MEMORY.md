@@ -25,5 +25,22 @@
 ### Decision: Token Server → Node.js (Express + jsonwebtoken)
 - **Why:** Fastest to implement. 100ms JWT format is well-documented. Node is in the approved stack.
 
+### Decision: Cursor mirrors Claude Code project brain
+- **Chosen:** `.cursor/rules` (always-on), `.cursor/skills` (grill-me + dev-flow + record-activity), `beforeSubmitPrompt` hook → `PROMPT_LOG.md`, `AGENTS.md` as config map
+- **Why:** Same workflows in Cursor as Claude Code; auditable prompt trail without relying on chat history alone
+- **Rejected:** Duplicating full `claude.md` into every rule file (pointer + focused recording rule instead)
+
+### Decision: 100ms management JWT must include `jti`
+- **What was decided:** `signManagementToken()` signs with `jwtid: uuidv4()` like app tokens.
+- **Why:** 100ms Management API rejects management tokens without `jti` (401 `null jti`); room creation then fell back to fake `room-<id>` and SDK init failed with 401.
+- **What was rejected:** Changing only Flutter join flow — root cause was server-side room creation.
+
 ---
+### Decision: 100ms video requires manifest + HMSVideoView (not placeholders)
+- **What was decided:** Declare `CAMERA`/`RECORD_AUDIO` (and related) in Android/iOS manifests; request via `permission_handler` before join; render tracks with `HMSVideoView` driven by `tracksUpdated` events from `HmsVideoCallService`.
+- **Why:** In-call UI was avatar placeholders only — SDK was joining but no video surfaces or permission prompts existed.
+- **What was rejected:** Relying on HMS SDK internal permission handling alone (still need manifest entries; explicit request gives clearer errors).
+
+---
+
 _Append new decisions below after each session._
