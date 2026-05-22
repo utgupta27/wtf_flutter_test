@@ -80,16 +80,6 @@ class HomeScreen extends ConsumerWidget {
                   context.push('/schedule');
                 },
               ),
-            if (!hasUpcoming) ...[
-              const SizedBox(height: 16),
-              const HomeActionCard(
-                icon: Icons.video_call_rounded,
-                title: 'Upcoming Calls',
-                subtitle: 'Join when your session starts',
-                route: '/upcoming',
-                color: Color(0xFF0D9488),
-              ),
-            ],
             const SizedBox(height: 16),
             const HomeActionCard(
               icon: Icons.bar_chart_rounded,
