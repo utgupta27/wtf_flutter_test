@@ -15,8 +15,12 @@ class AuthViewModel extends AsyncNotifier<User> {
     if (existing != null) {
       return existing;
     }
-    const user = SeedUsers.member;
-    await repo.saveUser(user);
-    return user;
+    // In-memory placeholder until onboarding persists the profile.
+    return const User(
+      id: 'member-dk-001',
+      name: 'DK',
+      email: 'dk@wtf.com',
+      role: 'member',
+    );
   }
 }
