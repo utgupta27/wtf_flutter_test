@@ -5,6 +5,17 @@ import 'package:go_router/go_router.dart';
 import 'package:trainer_app/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:trainer_app/features/home/home_screen.dart';
 
+class _PlaceholderScreen extends StatelessWidget {
+  const _PlaceholderScreen(this.title);
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: Center(child: Text(title)),
+      );
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authViewModelProvider);
 
@@ -24,6 +35,22 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/members',
+        builder: (context, state) => const _PlaceholderScreen('Members'),
+      ),
+      GoRoute(
+        path: '/chat',
+        builder: (context, state) => const _PlaceholderScreen('Chats'),
+      ),
+      GoRoute(
+        path: '/requests',
+        builder: (context, state) => const _PlaceholderScreen('Requests'),
+      ),
+      GoRoute(
+        path: '/sessions',
+        builder: (context, state) => const _PlaceholderScreen('Sessions'),
       ),
     ],
   );
