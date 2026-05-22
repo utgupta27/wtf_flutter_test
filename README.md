@@ -36,6 +36,47 @@ flutter pub get
 flutter run
 ```
 
+## Cross-app sync (Phase 2)
+
+Both apps share data through the local Node hub (`token_server`). Each app writes to Hive first, then syncs via HTTP poll (~1.5s).
+
+```bash
+cd token_server && npm start   # http://localhost:3000 — sync works without HMS keys
+```
+
+Android emulator uses `http://10.0.2.2:3000` (already set in app constants).
+
+### Manual test script (reviewer)
+
+1. Start `token_server` (`npm start`).
+2. Launch **Trainer App** → logged in as Aarav.
+3. Launch **Guru App** → onboarding DK → assigned to Aarav.
+4. DK: Home → **Chat with Trainer** (or **Say hi**) → send `Hi Coach 👋`.
+5. Trainer: **Chats** → unread badge → open DK → reply. While DK types, trainer sees **typing...**; after open, read receipts show double ticks.
+6. DK: **Schedule Call** → today 6:00 PM, note `Macros review` → see **Pending approval by Aarav**.
+7. Trainer: **Requests** → **Approve** → DK sees system message in chat.
+8. DK & Trainer: **Upcoming Calls** (or chat camera badge) → **Join** (opens **10 minutes** before scheduled time).
+9. Pre-join toggles → **Join Call** (requires HMS `.env` on token server).
+10. End call → DK rates 5★ + note; Trainer adds notes.
+11. Both: **Sessions** → latest log with duration/rating.
+
+### Chat sync API (curl)
+
+```bash
+# Post message (server ack → status sent)
+curl -X POST http://localhost:3000/sync/messages -H 'Content-Type: application/json' \
+  -d '{"id":"m1","chatId":"chat-dk-aarav","senderId":"member-dk-001","receiverId":"trainer-aarav-001","text":"Hi","createdAt":"2026-05-22T10:00:00Z","status":"sending"}'
+
+# Mark read
+curl -X PATCH http://localhost:3000/sync/messages/m1/status -H 'Content-Type: application/json' \
+  -d '{"status":"read"}'
+
+# Typing indicator
+curl -X POST http://localhost:3000/sync/typing -H 'Content-Type: application/json' \
+  -d '{"chatId":"chat-dk-aarav","userId":"member-dk-001","isTyping":true}'
+curl 'http://localhost:3000/sync/typing?chatId=chat-dk-aarav'
+```
+
 ## Linting
 
 ```bash

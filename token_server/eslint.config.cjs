@@ -1,10 +1,21 @@
 const js = require('@eslint/js');
 
 module.exports = [
+  {
+    ignores: ['node_modules/**', 'dist/**'],
+  },
   js.configs.recommended,
   {
     files: ['**/*.js'],
-    ignores: ['node_modules/**'],
+    languageOptions: {
+      globals: {
+        require: 'readonly',
+        module: 'readonly',
+        process: 'readonly',
+        console: 'readonly',
+        __dirname: 'readonly',
+      },
+    },
     rules: {
       'no-console': 'off',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],

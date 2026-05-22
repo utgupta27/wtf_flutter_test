@@ -177,4 +177,16 @@
 
 ---
 
+## Entry 016 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | Implement Manual Test Sync Plan: cross-app Hive+Node sync, Guru chat entry, calls, 100ms join, session sync; GitHub issues #40–#53 |
+| **Tool** | Cursor Agent |
+| **Output Summary** | Extended `token_server` with `/sync/messages`, `/sync/call-requests`, `/sync/session-logs`, `/rooms`, CORS, optional HMS. Added `shared` `SyncService` + JSON helpers. Both apps: sync polling bootstrap, chat sync/read/typing, schedule+My Requests, upcoming calls (1 min join window), RoomMeta join, pre-join toggles, flip/reconnect, session log sync. Guru Say hi + FAB. README manual script. BACKLOG Phase 2. GitHub issues #40–#53 created. guru 67 + trainer 46 tests pass. |
+| **Files Modified** | `token_server/index.js`, `token_server/eslint.config.cjs`, `shared/lib/sync/sync_service.dart`, `shared/lib/models/*_json.dart`, `shared/lib/constants/sync_constants.dart`, `guru_app/lib/**`, `trainer_app/lib/**`, `README.md`, `ARCHITECTURE.md`, `BACKLOG.md`, tests |
+| **Commit** | — |
+
+---
+
 _Append new entries below after each completed task._
