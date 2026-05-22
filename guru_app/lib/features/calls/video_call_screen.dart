@@ -18,6 +18,8 @@ class VideoCallScreen extends ConsumerWidget {
       VideoCallPhase.preJoin => _PreJoinView(
           state: state,
           onJoin: vm.join,
+          onToggleMic: vm.toggleMic,
+          onToggleCamera: vm.toggleCamera,
           onCancel: () => context.go('/home'),
         ),
       VideoCallPhase.connecting => const _ConnectingView(),
@@ -25,11 +27,13 @@ class VideoCallScreen extends ConsumerWidget {
           state: state,
           onToggleMic: vm.toggleMic,
           onToggleCamera: vm.toggleCamera,
+          onFlip: vm.flipCamera,
           onLeave: vm.leave,
         ),
       VideoCallPhase.rating => _RatingView(
           state: state,
           onRate: vm.selectRating,
+          onNoteChanged: vm.updateMemberNote,
           onSubmit: vm.submitRating,
         ),
       VideoCallPhase.done => _DoneView(onHome: () => context.go('/home')),
@@ -43,21 +47,25 @@ class _PreJoinView extends StatelessWidget {
   const _PreJoinView({
     required this.state,
     required this.onJoin,
+    required this.onToggleMic,
+    required this.onToggleCamera,
     required this.onCancel,
   });
   final VideoCallState state;
   final VoidCallback onJoin;
+  final VoidCallback onToggleMic;
+  final VoidCallback onToggleCamera;
   final VoidCallback onCancel;
 
   @override
   Widget build(BuildContext context) {
     return GuruSubpageScaffold(
       title: const Text('Ready to Join?'),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 24),
             const CircleAvatar(
               radius: 48,
               child: Text('A', style: TextStyle(fontSize: 36)),
@@ -83,7 +91,39 @@ class _PreJoinView extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ],
-            const SizedBox(height: 40),
+            const SizedBox(height: 24),
+            Container(
+              height: 160,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Center(
+                child: Icon(Icons.videocam_rounded, size: 48, color: Colors.grey),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: onToggleMic,
+                  icon: Icon(
+                    state.isMicOn ? Icons.mic_rounded : Icons.mic_off_rounded,
+                  ),
+                ),
+                IconButton(
+                  onPressed: onToggleCamera,
+                  icon: Icon(
+                    state.isCameraOn
+                        ? Icons.videocam_rounded
+                        : Icons.videocam_off_rounded,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
@@ -134,11 +174,13 @@ class _InCallView extends StatelessWidget {
     required this.state,
     required this.onToggleMic,
     required this.onToggleCamera,
+    required this.onFlip,
     required this.onLeave,
   });
   final VideoCallState state;
   final VoidCallback onToggleMic;
   final VoidCallback onToggleCamera;
+  final VoidCallback onFlip;
   final VoidCallback onLeave;
 
   String _formatDuration(int sec) {
@@ -154,6 +196,23 @@ class _InCallView extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
+            if (state.isReconnecting)
+              Container(
+                color: Colors.black54,
+                child: const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: Colors.white),
+                      SizedBox(height: 12),
+                      Text(
+                        'Reconnecting…',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             // Remote video placeholder (full screen)
             Container(
               color: const Color(0xFF1A1A2E),
@@ -220,20 +279,26 @@ class _InCallView extends StatelessWidget {
                     onTap: onToggleMic,
                     label: state.isMicOn ? 'Mute' : 'Unmute',
                   ),
-                  const SizedBox(width: 24),
+                  const SizedBox(width: 16),
+                  _CallButton(
+                    icon: Icons.flip_camera_ios_rounded,
+                    onTap: onFlip,
+                    label: 'Flip',
+                  ),
+                  const SizedBox(width: 16),
                   _CallButton(
                     icon: Icons.call_end_rounded,
                     onTap: onLeave,
                     label: 'End',
                     backgroundColor: Colors.red,
                   ),
-                  const SizedBox(width: 24),
+                  const SizedBox(width: 16),
                   _CallButton(
                     icon: state.isCameraOn
                         ? Icons.videocam_rounded
                         : Icons.videocam_off_rounded,
                     onTap: onToggleCamera,
-                    label: state.isCameraOn ? 'Camera' : 'Camera Off',
+                    label: state.isCameraOn ? 'Camera' : 'Cam Off',
                   ),
                 ],
               ),
@@ -283,10 +348,12 @@ class _RatingView extends StatelessWidget {
   const _RatingView({
     required this.state,
     required this.onRate,
+    required this.onNoteChanged,
     required this.onSubmit,
   });
   final VideoCallState state;
   final void Function(int) onRate;
+  final void Function(String) onNoteChanged;
   final VoidCallback onSubmit;
 
   @override
@@ -322,6 +389,15 @@ class _RatingView extends StatelessWidget {
                   onPressed: () => onRate(star),
                 );
               }),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              onChanged: onNoteChanged,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                hintText: 'Optional note',
+                border: OutlineInputBorder(),
+              ),
             ),
             if (state.error != null) ...[
               const SizedBox(height: 8),

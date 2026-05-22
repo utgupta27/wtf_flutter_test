@@ -5,20 +5,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:guru_app/features/home/home_screen.dart';
 import 'package:guru_app/providers/repository_providers.dart';
 import '../../fakes/fake_repositories.dart';
+import '../../support/hive_test_setup.dart';
 
 Widget _wrapWithScope() => ProviderScope(
       overrides: [
         authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
+        ...guruChatSyncOverrides(),
       ],
       child: const MaterialApp(home: HomeScreen()),
     );
 
 void main() {
+  setUpAll(() async {
+    await initGuruTestHive();
+  });
+
   group('HomeScreen', () {
-    testWidgets('shows 3 action cards', (tester) async {
+    testWidgets('shows 4 action cards', (tester) async {
       await tester.pumpWidget(_wrapWithScope());
       await tester.pump();
-      expect(find.byType(HomeActionCard), findsNWidgets(3));
+      expect(find.byType(HomeActionCard), findsNWidgets(4));
     });
 
     testWidgets('shows Chat with Trainer card', (tester) async {

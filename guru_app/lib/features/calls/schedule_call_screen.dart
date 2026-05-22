@@ -15,7 +15,10 @@ class ScheduleCallScreen extends ConsumerWidget {
     final vm = ref.read(scheduleCallViewModelProvider.notifier);
 
     if (state.submitted) {
-      return _SuccessView(onDone: () => context.go('/home'));
+      return _SuccessView(
+        onDone: () => context.go('/home'),
+        onViewRequests: () => context.push('/requests'),
+      );
     }
 
     return GuruSubpageScaffold(
@@ -74,7 +77,21 @@ class ScheduleCallScreen extends ConsumerWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: state.isSubmitting ? null : vm.submit,
+                onPressed: state.isSubmitting
+                    ? null
+                    : () async {
+                        await vm.submit();
+                        if (context.mounted &&
+                            ref.read(scheduleCallViewModelProvider).submitted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Pending approval by Aarav',
+                              ),
+                            ),
+                          );
+                        }
+                      },
                 child: state.isSubmitting
                     ? const SizedBox(
                         height: 20,
@@ -173,8 +190,12 @@ class _SlotGrid extends StatelessWidget {
 }
 
 class _SuccessView extends StatelessWidget {
-  const _SuccessView({required this.onDone});
+  const _SuccessView({
+    required this.onDone,
+    required this.onViewRequests,
+  });
   final VoidCallback onDone;
+  final VoidCallback onViewRequests;
 
   @override
   Widget build(BuildContext context) {
@@ -193,11 +214,17 @@ class _SuccessView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                "Aarav will review your request and confirm shortly.",
+                'Pending approval by Aarav',
                 textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 32),
-              FilledButton(onPressed: onDone, child: const Text('Back to Home')),
+              FilledButton(
+                onPressed: onViewRequests,
+                child: const Text('View My Requests'),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton(onPressed: onDone, child: const Text('Back to Home')),
             ],
           ),
         ),

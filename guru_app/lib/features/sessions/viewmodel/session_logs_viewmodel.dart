@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared/shared.dart';
 
 import 'package:guru_app/providers/repository_providers.dart';
+import 'package:guru_app/providers/sync_provider.dart';
 
 enum SessionFilter { all, last7d, thisMonth }
 
@@ -42,7 +43,11 @@ class SessionLogsState {
 class SessionLogsViewModel extends AsyncNotifier<SessionLogsState> {
   @override
   Future<SessionLogsState> build() async {
+    ref.listen(syncTickProvider, (prev, next) {
+      ref.invalidateSelf();
+    });
     final logs = await ref.read(sessionLogRepositoryProvider).getAll();
+    logs.sort((a, b) => b.startedAt.compareTo(a.startedAt));
     return SessionLogsState(logs: logs);
   }
 
@@ -56,6 +61,7 @@ class SessionLogsViewModel extends AsyncNotifier<SessionLogsState> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final logs = await ref.read(sessionLogRepositoryProvider).getAll();
+      logs.sort((a, b) => b.startedAt.compareTo(a.startedAt));
       return SessionLogsState(logs: logs);
     });
   }

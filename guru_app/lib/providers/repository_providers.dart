@@ -6,10 +6,10 @@ import 'package:guru_app/features/auth/data/auth_repository.dart';
 import 'package:guru_app/features/auth/data/auth_repository_impl.dart';
 import 'package:guru_app/features/calls/data/call_request_repository.dart';
 import 'package:guru_app/features/calls/data/call_request_repository_impl.dart';
+import 'package:shared/shared.dart';
+
 import 'package:guru_app/features/calls/service/hms_video_call_service.dart';
 import 'package:guru_app/features/calls/service/video_call_service.dart';
-import 'package:guru_app/features/chat/data/chat_repository.dart';
-import 'package:guru_app/features/chat/data/chat_repository_impl.dart';
 import 'package:guru_app/features/onboarding/data/onboarding_repository.dart';
 import 'package:guru_app/features/onboarding/data/onboarding_repository_impl.dart';
 import 'package:guru_app/features/sessions/data/session_log_repository.dart';

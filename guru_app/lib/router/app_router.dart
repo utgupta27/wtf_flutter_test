@@ -5,7 +5,9 @@ import 'package:shared/shared.dart';
 
 import 'package:guru_app/core/theme/app_theme.dart';
 import 'package:guru_app/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:guru_app/features/calls/my_requests_screen.dart';
 import 'package:guru_app/features/calls/schedule_call_screen.dart';
+import 'package:guru_app/features/calls/upcoming_calls_screen.dart';
 import 'package:guru_app/features/calls/video_call_screen.dart';
 import 'package:guru_app/features/sessions/session_logs_screen.dart';
 import 'package:guru_app/features/chat/chat_list_screen.dart';
@@ -99,6 +101,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/schedule',
         builder: (context, state) => const ScheduleCallScreen(),
+      ),
+      GoRoute(
+        path: '/requests',
+        builder: (context, state) => const MyRequestsScreen(),
+      ),
+      GoRoute(
+        path: '/upcoming',
+        builder: (context, state) => const UpcomingCallsScreen(),
       ),
       GoRoute(
         path: '/call/:requestId',

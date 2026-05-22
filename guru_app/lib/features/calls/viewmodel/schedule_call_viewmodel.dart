@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared/shared.dart';
 
 import 'package:guru_app/providers/repository_providers.dart';
+import 'package:guru_app/providers/sync_provider.dart';
 
 class ScheduleCallState {
   const ScheduleCallState({
@@ -60,16 +61,22 @@ class ScheduleCallViewModel extends Notifier<ScheduleCallState> {
       state = state.copyWith(note: note, error: null);
 
   Future<void> submit() async {
-    if (state.selectedSlot == null) {
+    final slot = state.selectedSlot;
+    if (slot == null) {
       state = state.copyWith(error: 'Please select a time slot');
       return;
     }
+    if (!slot.isAfter(DateTime.now())) {
+      state = state.copyWith(error: 'Cannot schedule a time in the past');
+      return;
+    }
+
     state = state.copyWith(isSubmitting: true, error: null);
 
-    final repo = ref.read(callRequestRepositoryProvider);  // from repository_providers
-    const trainerId = 'trainer-aarav-001';
+    final repo = ref.read(callRequestRepositoryProvider);
+    const trainerId = SyncConstants.trainerId;
 
-    final conflict = await repo.hasConflict(state.selectedSlot!, trainerId);
+    final conflict = await repo.hasConflict(slot, trainerId);
     if (conflict) {
       state = state.copyWith(
         isSubmitting: false,
@@ -80,14 +87,15 @@ class ScheduleCallViewModel extends Notifier<ScheduleCallState> {
 
     final request = CallRequest(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      memberId: 'member-dk-001',
+      memberId: SyncConstants.memberId,
       trainerId: trainerId,
       requestedAt: DateTime.now(),
-      scheduledFor: state.selectedSlot!,
+      scheduledFor: slot,
       note: state.note.trim(),
     );
 
     await repo.save(request);
+    ref.read(syncServiceProvider).enqueueCallRequest(request);
     state = state.copyWith(isSubmitting: false, submitted: true);
   }
 }
@@ -96,4 +104,3 @@ final scheduleCallViewModelProvider =
     NotifierProvider<ScheduleCallViewModel, ScheduleCallState>(
   ScheduleCallViewModel.new,
 );
-

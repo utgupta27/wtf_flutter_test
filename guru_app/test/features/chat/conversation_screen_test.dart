@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared/shared.dart';
 
+import 'package:guru_app/core/constants.dart';
 import 'package:guru_app/features/chat/conversation_screen.dart';
-import 'package:guru_app/providers/repository_providers.dart';
 import '../../fakes/fake_repositories.dart';
+import '../../support/hive_test_setup.dart';
 
 const _chatId = 'chat-dk-aarav';
 
@@ -39,11 +41,24 @@ final _seedMessages = [
   ),
 ];
 
+SyncService _testSync() => SyncService(
+      baseUrl: 'http://127.0.0.1:1',
+      messagesBox: Hive.box(AppConstants.hiveBoxMessages),
+      callRequestsBox: Hive.box(AppConstants.hiveBoxCallRequests),
+      sessionLogsBox: Hive.box(AppConstants.hiveBoxSessionLogs),
+      roomMetaBox: Hive.box(AppConstants.hiveBoxRoomMeta),
+      outboxBox: Hive.box(AppConstants.hiveBoxSyncOutbox),
+      settingsBox: Hive.box(AppConstants.hiveBoxSettings),
+      typingBox: Hive.box(SyncConstants.hiveBoxSyncTyping),
+      networkEnabled: false,
+    );
+
 Widget _wrap({List<Message> messages = const []}) => ProviderScope(
       overrides: [
-        chatRepositoryProvider.overrideWithValue(
+        sharedChatRepositoryProvider.overrideWithValue(
           FakeChatRepository(messages: List.from(messages)),
         ),
+        sharedSyncServiceProvider.overrideWithValue(_testSync()),
       ],
       child: const MaterialApp(
         home: ConversationScreen(chatId: _chatId),
@@ -51,6 +66,10 @@ Widget _wrap({List<Message> messages = const []}) => ProviderScope(
     );
 
 void main() {
+  setUpAll(() async {
+    await initGuruTestHive();
+  });
+
   group('ConversationScreen', () {
     testWidgets('renders AppBar with trainer name', (tester) async {
       await tester.pumpWidget(_wrap());
@@ -80,6 +99,18 @@ void main() {
       await tester.pumpWidget(_wrap());
       await tester.pump();
       expect(find.byIcon(Icons.send_rounded), findsOneWidget);
+    });
+
+    testWidgets('shows quick reply chips', (tester) async {
+      await tester.pumpWidget(_wrap(messages: _seedMessages));
+      await tester.pump();
+      expect(find.text('Got it 👍'), findsOneWidget);
+    });
+
+    testWidgets('shows attach image button', (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pump();
+      expect(find.byIcon(Icons.image_outlined), findsOneWidget);
     });
 
     testWidgets('read message shows double tick icon', (tester) async {

@@ -5,6 +5,7 @@ import 'package:shared/shared.dart';
 
 import 'package:guru_app/core/constants.dart';
 import 'package:guru_app/app.dart';
+import 'package:guru_app/providers/sync_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,45 @@ void main() async {
     Hive.openBox<dynamic>(AppConstants.hiveBoxCallRequests),
     Hive.openBox<dynamic>(AppConstants.hiveBoxSessionLogs),
     Hive.openBox<dynamic>(AppConstants.hiveBoxRoomMeta),
+    Hive.openBox<dynamic>(AppConstants.hiveBoxSyncOutbox),
+    Hive.openBox<dynamic>(SyncConstants.hiveBoxSyncTyping),
   ]);
 
-  runApp(const ProviderScope(child: GuruApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedChatRepositoryProvider.overrideWith(
+          (ref) => HiveChatRepository(
+            Hive.box<dynamic>(AppConstants.hiveBoxMessages),
+          ),
+        ),
+        sharedSyncServiceProvider.overrideWith(
+          (ref) => ref.watch(syncServiceProvider),
+        ),
+      ],
+      child: const _SyncBootstrap(child: GuruApp()),
+    ),
+  );
+}
+
+/// Starts cross-app sync polling after Hive is ready.
+class _SyncBootstrap extends ConsumerStatefulWidget {
+  const _SyncBootstrap({required this.child});
+  final Widget child;
+
+  @override
+  ConsumerState<_SyncBootstrap> createState() => _SyncBootstrapState();
+}
+
+class _SyncBootstrapState extends ConsumerState<_SyncBootstrap> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(syncServiceProvider).startPolling();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

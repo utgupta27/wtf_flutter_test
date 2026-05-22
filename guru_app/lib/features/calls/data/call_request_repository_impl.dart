@@ -33,7 +33,6 @@ class HiveCallRequestRepository implements CallRequestRepository {
             (r) =>
                 r.trainerId == trainerId &&
                 r.scheduledFor == scheduledFor &&
-                r.status != CallRequestStatus.cancelled &&
-                r.status != CallRequestStatus.declined,
+                r.status == CallRequestStatus.approved,
           );
 }

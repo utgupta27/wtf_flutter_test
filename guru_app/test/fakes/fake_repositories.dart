@@ -5,7 +5,6 @@ import 'package:shared/shared.dart';
 import 'package:guru_app/features/auth/data/auth_repository.dart';
 import 'package:guru_app/features/calls/data/call_request_repository.dart';
 import 'package:guru_app/features/calls/service/video_call_service.dart';
-import 'package:guru_app/features/chat/data/chat_repository.dart';
 import 'package:guru_app/features/onboarding/data/onboarding_repository.dart';
 import 'package:guru_app/features/sessions/data/session_log_repository.dart';
 
@@ -120,6 +119,9 @@ class FakeVideoCallService implements VideoCallService {
 
   @override
   Future<void> toggleCamera() async => _cameraEnabled = !_cameraEnabled;
+
+  @override
+  Future<void> flipCamera() async {}
 
   @override
   void dispose() => _controller.close();

@@ -1,4 +1,4 @@
-enum VideoCallServiceEventType { joined, left, error }
+enum VideoCallServiceEventType { joined, left, error, reconnecting, reconnected }
 
 class VideoCallServiceEvent {
   const VideoCallServiceEvent(this.type, {this.message});
@@ -18,5 +18,6 @@ abstract interface class VideoCallService {
   Future<void> leave();
   Future<void> toggleMic();
   Future<void> toggleCamera();
+  Future<void> flipCamera();
   void dispose();
 }

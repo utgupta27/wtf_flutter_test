@@ -8,12 +8,14 @@ class GuruSubpageScaffold extends StatelessWidget {
     required this.title,
     required this.body,
     this.actions,
+    this.floatingActionButton,
     this.preferPop = false,
   });
 
   final Widget title;
   final Widget body;
   final List<Widget>? actions;
+  final Widget? floatingActionButton;
   /// When true, back tries [GoRouter.pop] first (e.g. conversation → chat list).
   final bool preferPop;
 
@@ -46,6 +48,7 @@ class GuruSubpageScaffold extends StatelessWidget {
           actions: actions,
         ),
         body: body,
+        floatingActionButton: floatingActionButton,
       ),
     );
   }

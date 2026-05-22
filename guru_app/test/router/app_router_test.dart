@@ -6,8 +6,12 @@ import 'package:guru_app/app.dart';
 import 'package:guru_app/providers/repository_providers.dart';
 import 'package:guru_app/router/app_router.dart';
 import '../fakes/fake_repositories.dart';
+import '../support/hive_test_setup.dart';
 
 void main() {
+  setUpAll(() async {
+    await initGuruTestHive();
+  });
   group('resolveGuruRedirect', () {
     test('auth loading keeps splash', () {
       expect(
@@ -73,6 +77,7 @@ void main() {
             authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
             onboardingRepositoryProvider
                 .overrideWithValue(FakeOnboardingRepository(done: true)),
+            ...guruChatSyncOverrides(),
           ],
           child: const GuruApp(),
         ),
@@ -90,6 +95,7 @@ void main() {
             authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
             onboardingRepositoryProvider
                 .overrideWithValue(FakeOnboardingRepository()),
+            ...guruChatSyncOverrides(),
           ],
           child: const GuruApp(),
         ),
