@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:shared/shared.dart';
 
 import 'package:guru_app/core/theme/app_theme.dart';
+import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
 import 'package:guru_app/features/chat/viewmodel/chat_list_viewmodel.dart';
 
 class ChatPreview {
@@ -34,9 +35,8 @@ class ChatListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(chatListViewModelProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      appBar: AppBar(title: const Text('Chats')),
+    return GuruSubpageScaffold(
+      title: const Text('Chats'),
       body: state.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
