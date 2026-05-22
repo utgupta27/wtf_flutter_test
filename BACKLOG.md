@@ -25,12 +25,12 @@
 
 ## TRAINER APP
 
-- [ ] #10 — Mock Auth: Auto-login as Aarav, seed profile (`feat/trainer/mock-auth`)
-- [ ] #11 — Home Screen: 4 tiles (Members, Chats, Requests, Sessions) (`feat/trainer/home-screen`)
-- [ ] #12 — Chat: Member chat list + conversation screen (`feat/trainer/chat`)
-- [ ] #13 — Requests: Approve/Decline inline, system message on approve (`feat/trainer/requests`)
-- [ ] #14 — Video Call: Pre-join modal, in-call UI, end call → add notes (`feat/trainer/video-call`)
-- [ ] #15 — Session Logs: List with trainer notes (`feat/trainer/session-logs`)
+- [x] #10 — Mock Auth: Auto-login as Aarav, seed profile (`feat/trainer/mock-auth`)
+- [x] #11 — Home Screen: 4 tiles (Members, Chats, Requests, Sessions) (`feat/trainer/home-screen`)
+- [x] #12 — Chat: Member chat list + conversation screen (`feat/trainer/chat`)
+- [x] #13 — Requests: Approve/Decline inline, system message on approve (`feat/trainer/requests`)
+- [x] #14 — Video Call: Pre-join modal, in-call UI, end call → add notes (`feat/trainer/video-call`)
+- [x] #15 — Session Logs: List with trainer notes (`feat/trainer/video-call`)
 
 ---
 

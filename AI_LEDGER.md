@@ -105,4 +105,64 @@
 
 ---
 
+## Entry 010 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #10 — Trainer Mock Auth: auto-login as Aarav, seed profile, full app scaffold |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | Full trainer_app scaffold: main.dart (7 Hive adapters, 5 boxes, ProviderScope), TrainerApp ConsumerWidget, Material3 red theme (#E50914). AuthRepository + HiveAuthRepository + AuthViewModel (auto-seeds Aarav). Router: splash → home redirect. Placeholder HomeScreen (greeting + role badge). FakeAuthRepository + 2 widget tests. Pulled shared model files from guru branch (message, call_request, session_log, room_meta). flutter analyze → 0, 3 tests passing. |
+| **Files Modified** | trainer_app/lib/* (all new), trainer_app/test/*, trainer_app/pubspec.yaml, shared/lib/models/*.dart, shared/pubspec.yaml |
+| **Commit** | `feat(trainer): mock auth + app scaffold — Issue #10` |
+
+---
+
+## Entry 011 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #11 — Trainer Home Screen: 4 dashboard tiles (Members, Chats, Requests, Sessions) |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | HomeViewModel (AsyncNotifier<User>) loads Aarav. HomeScreen 2×2 GridView of HomeActionTile (Members, Chats, Requests, Sessions). Router extended with 4 placeholder routes. 8 widget tests, 9 total passing. flutter analyze → 0. Issue #11 closed. |
+| **Files Modified** | trainer_app/lib/features/home/home_screen.dart, trainer_app/lib/features/home/viewmodel/home_viewmodel.dart, trainer_app/lib/router/app_router.dart, trainer_app/test/features/home/home_screen_test.dart |
+| **Commit** | `feat(trainer): home screen with 4 action tiles — Issue #11` |
+
+---
+
+## Entry 012 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #12 — Trainer Chat: member list + conversation screen |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | ChatRepository + HiveChatRepository. ChatListViewModel (AsyncNotifier, unread detection). ConversationViewModel (FamilyAsyncNotifier, optimistic send). ChatListScreen (DK tile, UnreadBadge). ConversationScreen (coloured bubbles, status ticks, input bar). FakeChatRepository in fakes. 12 widget tests, 21 total. flutter analyze → 0. Issue #12 closed. |
+| **Files Modified** | trainer_app/lib/features/chat/*, trainer_app/lib/providers/repository_providers.dart, trainer_app/lib/router/app_router.dart, trainer_app/test/fakes/fake_repositories.dart, trainer_app/test/features/chat/* |
+| **Commit** | `feat(trainer): chat screens (member list + conversation) — Issue #12` |
+
+---
+
+## Entry 013 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #13 — Trainer Requests: approve/decline inline, system message on approve |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | CallRequestRepository + HiveCallRequestRepository. RequestsViewModel (AsyncNotifier): approve() → status=approved + system chat message, decline() → status=declined; both reload. RequestsScreen: pending-only list, RequestCard with inline Approve/Decline. FakeCallRequestRepository in fakes. 8 widget tests, 29 total. flutter analyze → 0. Issue #13 closed. |
+| **Files Modified** | trainer_app/lib/features/requests/*, trainer_app/lib/providers/repository_providers.dart, trainer_app/lib/router/app_router.dart, trainer_app/test/fakes/fake_repositories.dart, trainer_app/test/features/requests/requests_screen_test.dart |
+| **Commit** | `feat(trainer): requests screen with approve/decline — Issue #13` |
+
+---
+
+## Entry 014 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #14 + #15 — Trainer Video Call (pre-join/in-call/notes) + Session Logs with trainer notes |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | VideoCallService + HmsVideoCallService (trainer role). VideoCallViewModel (FamilyNotifier, 5-phase: preJoin/connecting/inCall/notes/done). VideoCallScreen. SessionLogRepository + HiveSessionLogRepository (addTrainerNote). SessionLogsViewModel (AsyncNotifier, addNote/refresh). SessionLogsScreen (tile, Add/Edit note dialog). FakeVideoCallService + FakeSessionLogRepository. 18 widget tests, 46 total. flutter analyze → 0. Issues #14, #15 closed. |
+| **Files Modified** | trainer_app/lib/features/calls/*, trainer_app/lib/features/sessions/*, trainer_app/lib/providers/repository_providers.dart, trainer_app/lib/router/app_router.dart, trainer_app/test/fakes/fake_repositories.dart, trainer_app/test/features/calls/*, trainer_app/test/features/sessions/* |
+| **Commit** | `feat(trainer): video call + session logs with trainer notes — Issues #14 & #15` |
+
+---
+
 _Append new entries below after each completed task._
