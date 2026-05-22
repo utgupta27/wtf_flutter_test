@@ -165,4 +165,16 @@
 
 ---
 
+## Entry 015 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | Analyse Claude Code config; mirror skills/rules in Cursor; global recording to AI_LEDGER, BACKLOG, MEMORY, README; auto-record all user prompts |
+| **Tool** | Cursor Agent |
+| **Output Summary** | Documented Claude setup (`claude.md` + `.claude/skills/grill-me`). Added Cursor rules, skills (`grill-me`, `start-dev-flow`, `record-activity`), `beforeSubmitPrompt` hook → `PROMPT_LOG.md`, `AGENTS.md`, updated README docs index. |
+| **Files Modified** | `.cursor/rules/wtf-platform.mdc`, `.cursor/rules/project-recording.mdc`, `.cursor/skills/grill-me/SKILL.md`, `.cursor/skills/start-dev-flow/SKILL.md`, `.cursor/skills/record-activity/SKILL.md`, `.cursor/hooks.json`, `.cursor/hooks/log-user-prompt.sh`, `PROMPT_LOG.md`, `AGENTS.md`, `README.md`, `AI_LEDGER.md` |
+| **Commit** | — |
+
+---
+
 _Append new entries below after each completed task._

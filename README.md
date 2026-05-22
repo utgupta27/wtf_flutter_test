@@ -58,8 +58,12 @@ main (human-only)
 
 ## Docs
 
+- [AGENTS.md](AGENTS.md) — Cursor / AI agent config map
+- [claude.md](claude.md) — project instructions (Claude Code + Cursor)
 - [ARCHITECTURE.md](ARCHITECTURE.md) — system design
 - [DECISIONS.md](DECISIONS.md) — ADRs
 - [BACKLOG.md](BACKLOG.md) — issue tracker
-- [AI_LEDGER.md](AI_LEDGER.md) — AI activity log
+- [AI_LEDGER.md](AI_LEDGER.md) — AI activity log (completed tasks)
+- [PROMPT_LOG.md](PROMPT_LOG.md) — user prompt audit trail (auto)
 - [MEMORY.md](MEMORY.md) — decisions + session summaries
+- [ERRORS.md](ERRORS.md) — failed approaches log

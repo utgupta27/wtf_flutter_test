@@ -1,0 +1,33 @@
+---
+description: WTF Platform core agent identity, workflow, and boundaries (from claude.md)
+alwaysApply: true
+---
+
+# WTF Platform — Core Rules
+
+**Canonical source:** Read `claude.md` (or `CLAUDE.md`) at session start for full role, git workflow, linting, and `/start-dev-flow` lifecycle.
+
+## Session start (every conversation)
+
+1. Read `MEMORY.md`, `ERRORS.md`, and `BACKLOG.md` before coding.
+2. Follow branch rules: never touch `main`; feature branches `feat/<app>/<name>` from `guru` / `trainer` / `node-server`.
+
+## Communication
+
+- No filler openings. Match answer length to question complexity.
+- Ask before assuming. Offer 2–3 options before significant work; wait for choice.
+- After any coding task, end with: **Files changed** / **What was modified** / **Files intentionally not touched** / **Follow-up needed**.
+
+## Code boundaries
+
+- Strict scope: only change what the task requires.
+- Stop for confirmation before large logic rewrites or destructive actions.
+- `flutter analyze` / `npm run lint` must pass before commits.
+
+## Skills (project)
+
+| Skill | When |
+|-------|------|
+| `grill-me` | Stress-test a plan or design |
+| `start-dev-flow` | User sends `/start-dev-flow` |
+| `record-activity` | After completed work or when updating project docs |

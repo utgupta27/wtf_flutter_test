@@ -1,0 +1,51 @@
+---
+description: Mandatory updates to AI_LEDGER, BACKLOG, MEMORY, PROMPT_LOG, README, and related docs
+alwaysApply: true
+---
+
+# Project recording (mandatory)
+
+Record work in repo files so humans and future sessions can audit AI activity.
+
+## Every user message
+
+- **Automatic:** `.cursor/hooks/log-user-prompt.sh` appends to `PROMPT_LOG.md` (timestamp + full prompt).
+- **Agent backup:** If the hook did not run, append the user's exact prompt to `PROMPT_LOG.md` before other work.
+
+## After each completed coding task
+
+Append one row block to `AI_LEDGER.md`:
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | User request (verbatim or tight paraphrase) |
+| **Tool** | Cursor Agent |
+| **Output Summary** | What was delivered |
+| **Files Modified** | Paths touched |
+| **Commit** | Conventional Commit message if committed; else `—` |
+
+## Significant decisions
+
+Append to `MEMORY.md`: *What was decided / Why / What was rejected*.
+
+## Failed approaches (2+ attempts)
+
+Append to `ERRORS.md`: *What didn't work / What worked / Note for next time*.
+
+## Backlog
+
+When an issue is done, mark `[x]` in `BACKLOG.md` with the matching GitHub issue id.
+
+## README and architecture docs
+
+- **README.md:** Update only when setup, quick start, branch strategy, or doc index changes.
+- **ARCHITECTURE.md / DECISIONS.md:** Update when design or ADRs change.
+
+## Session end
+
+When the user says `session end` or `let's stop here`, append to `MEMORY.md`: *Worked on / Completed / In progress / Decisions / Next priorities*.
+
+## Do not
+
+- Skip `PROMPT_LOG.md` for any user message.
+- Commit or mark backlog done without human approval when `claude.md` review gate applies.
