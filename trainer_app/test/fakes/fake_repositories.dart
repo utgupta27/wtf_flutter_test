@@ -1,8 +1,75 @@
+import 'dart:async';
+
 import 'package:shared/shared.dart';
 
 import 'package:trainer_app/features/auth/data/auth_repository.dart';
 import 'package:trainer_app/features/chat/data/chat_repository.dart';
+import 'package:trainer_app/features/calls/service/video_call_service.dart';
 import 'package:trainer_app/features/requests/data/call_request_repository.dart';
+import 'package:trainer_app/features/sessions/data/session_log_repository.dart';
+
+class FakeSessionLogRepository implements SessionLogRepository {
+  FakeSessionLogRepository({List<SessionLog>? logs}) : _logs = logs ?? [];
+  final List<SessionLog> _logs;
+
+  @override
+  Future<List<SessionLog>> getAll() async => List.from(_logs);
+
+  @override
+  Future<void> save(SessionLog log) async => _logs.add(log);
+
+  @override
+  Future<void> addTrainerNote(String id, String note) async {
+    final i = _logs.indexWhere((l) => l.id == id);
+    if (i != -1) _logs[i] = _logs[i].copyWith(trainerNotes: note);
+  }
+}
+
+class FakeVideoCallService implements VideoCallService {
+  FakeVideoCallService({this.joinError});
+  final String? joinError;
+
+  final StreamController<VideoCallServiceEvent> _controller =
+      StreamController<VideoCallServiceEvent>.broadcast();
+  bool _micEnabled = true;
+  bool _cameraEnabled = true;
+
+  @override
+  Stream<VideoCallServiceEvent> get events => _controller.stream;
+
+  @override
+  bool get isMicEnabled => _micEnabled;
+
+  @override
+  bool get isCameraEnabled => _cameraEnabled;
+
+  @override
+  Future<void> join({
+    required String roomCode,
+    required String userId,
+    required String username,
+  }) async {
+    if (joinError != null) {
+      _controller.add(
+          VideoCallServiceEvent(VideoCallServiceEventType.error, message: joinError));
+      return;
+    }
+    _controller.add(const VideoCallServiceEvent(VideoCallServiceEventType.joined));
+  }
+
+  @override
+  Future<void> leave() async =>
+      _controller.add(const VideoCallServiceEvent(VideoCallServiceEventType.left));
+
+  @override
+  Future<void> toggleMic() async => _micEnabled = !_micEnabled;
+
+  @override
+  Future<void> toggleCamera() async => _cameraEnabled = !_cameraEnabled;
+
+  @override
+  void dispose() => _controller.close();
+}
 
 class FakeCallRequestRepository implements CallRequestRepository {
   FakeCallRequestRepository({List<CallRequest>? requests})

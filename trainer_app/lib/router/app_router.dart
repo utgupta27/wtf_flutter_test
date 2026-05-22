@@ -6,7 +6,9 @@ import 'package:trainer_app/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:trainer_app/features/chat/chat_list_screen.dart';
 import 'package:trainer_app/features/chat/conversation_screen.dart';
 import 'package:trainer_app/features/home/home_screen.dart';
+import 'package:trainer_app/features/calls/video_call_screen.dart';
 import 'package:trainer_app/features/requests/requests_screen.dart';
+import 'package:trainer_app/features/sessions/session_logs_screen.dart';
 
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen(this.title);
@@ -60,8 +62,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RequestsScreen(),
       ),
       GoRoute(
+        path: '/call/:requestId',
+        builder: (context, state) => VideoCallScreen(
+          requestId: state.pathParameters['requestId']!,
+        ),
+      ),
+      GoRoute(
         path: '/sessions',
-        builder: (context, state) => const _PlaceholderScreen('Sessions'),
+        builder: (context, state) => const SessionLogsScreen(),
       ),
     ],
   );
