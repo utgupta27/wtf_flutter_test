@@ -4,10 +4,17 @@ Guru ↔ Trainer Chat + Video Call System. Local-first Flutter monorepo.
 
 ## Apps
 
-| App | Persona | Color |
-|-----|---------|-------|
-| `guru_app` | DK (Member) | `#1769E0` |
+
+| App           | Persona         | Color     |
+| ------------- | --------------- | --------- |
+| `guru_app`    | DK (Member)     | `#1769E0` |
 | `trainer_app` | Aarav (Trainer) | `#E50914` |
+
+
+## Demo Video
+
+Part 1: [https://drive.google.com/file/d/1zouY-8FLfxZBt0kTOnfizfq4AiCTAo0s/view?usp=sharing](https://drive.google.com/file/d/1zouY-8FLfxZBt0kTOnfizfq4AiCTAo0s/view?usp=sharing) 
+Part 2: [https://drive.google.com/file/d/141aXiEhfcTtwgiB6DgvcEVESqFkta-fq/view?usp=sharing](https://drive.google.com/file/d/141aXiEhfcTtwgiB6DgvcEVESqFkta-fq/view?usp=sharing)
 
 ## Quick Start
 
@@ -108,3 +115,4 @@ main (human-only)
 - [PROMPT_LOG.md](PROMPT_LOG.md) — user prompt audit trail (auto)
 - [MEMORY.md](MEMORY.md) — decisions + session summaries
 - [ERRORS.md](ERRORS.md) — failed approaches log
+
