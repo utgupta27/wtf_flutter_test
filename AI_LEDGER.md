@@ -56,6 +56,28 @@
 | **Files Modified** | guru_app/lib/features/onboarding/onboarding_screen.dart, guru_app/lib/router/app_router.dart, guru_app/test/features/onboarding/onboarding_screen_test.dart |
 | **Commit** | `feat(guru): add 2-slide onboarding flow` |
 
+## Entry 016 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #35 — Onboarding: DK profile (name prefilled) + trainer selection from seeded list |
+| **Tool** | Cursor Agent |
+| **Output Summary** | 2 intro slides + profile setup page; `SeedTrainers` (Aarav, Priya, Mike); profile saved on complete with `assignedTrainerId`; stable GoRouter + splash→home redirect. Merged PR #36 → `guru`. |
+| **Files Modified** | shared/lib/models/seed_trainers.dart, guru_app onboarding/auth/router, tests |
+| **Commit** | `feat(guru): onboarding profile setup with trainer selection` |
+
+---
+
+## Entry 017 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #37 — AppBar back + Android system back to Home |
+| **Tool** | Cursor Agent |
+| **Output Summary** | `GuruSubpageScaffold` with header back + `PopScope`; Home uses `push`; applied to chat, conversation, schedule, sessions, video pre-join. Merged PR #38 → `guru`. |
+| **Files Modified** | guru_app/lib/core/widgets/guru_subpage_scaffold.dart, home + feature screens, test |
+| **Commit** | `feat(guru): AppBar and Android back navigation to Home` |
+
 ---
 
 _Append new entries below after each completed task._
