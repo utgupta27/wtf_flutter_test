@@ -19,6 +19,9 @@ const APP_ACCESS_KEY = process.env.HMS_APP_ACCESS_KEY;
 const APP_SECRET = process.env.HMS_APP_SECRET;
 const PORT = process.env.PORT || 3000;
 const HMS_ENABLED = Boolean(APP_ACCESS_KEY && APP_SECRET);
+const HMS_TEMPLATE_ID = process.env.HMS_TEMPLATE_ID || '';
+const HMS_ROLE_TRAINER = process.env.HMS_ROLE_TRAINER || 'trainer';
+const HMS_ROLE_MEMBER = process.env.HMS_ROLE_MEMBER || 'member';
 
 // In-memory sync store (demo / local dev)
 const messages = new Map();
@@ -154,6 +157,54 @@ function signToken(roomId, userId, role) {
     expiresIn: '24h',
     jwtid: uuidv4(),
   });
+}
+
+/** Sign a management token (used to call 100ms Management API). */
+function signManagementToken() {
+  const issuedAt = Math.floor(Date.now() / 1000);
+  return jwt.sign(
+    {
+      access_key: APP_ACCESS_KEY,
+      type: 'management',
+      version: 2,
+      iat: issuedAt,
+      nbf: issuedAt,
+    },
+    APP_SECRET,
+    { algorithm: 'HS256', expiresIn: '24h' },
+  );
+}
+
+/**
+ * Create a real 100ms room via the Management API.
+ * Returns the room ID string, or null on failure.
+ */
+async function createHmsRoom(name) {
+  if (!HMS_ENABLED) return null;
+  try {
+    const token = signManagementToken();
+    const body = { name };
+    if (HMS_TEMPLATE_ID) body.template_id = HMS_TEMPLATE_ID;
+    const res = await fetch('https://api.100ms.live/v2/rooms', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      console.error('[HMS] Room creation failed:', res.status, JSON.stringify(err));
+      return null;
+    }
+    const data = await res.json();
+    console.log('[HMS] Room created — id:', data.id, 'name:', name);
+    return data.id;
+  } catch (e) {
+    console.error('[HMS] Room creation error:', e.message);
+    return null;
+  }
 }
 
 function issueToken(roomId, userId, role, res) {
@@ -314,7 +365,7 @@ app.get('/sync/call-requests', (req, res) => {
   return res.json({ callRequests: list });
 });
 
-app.patch('/sync/call-requests/:id', (req, res) => {
+app.patch('/sync/call-requests/:id', async (req, res) => {
   const existing = callRequests.get(req.params.id);
   if (!existing) {
     return res.status(404).json({ error: 'CallRequest not found' });
@@ -338,14 +389,18 @@ app.patch('/sync/call-requests/:id', (req, res) => {
   callRequests.set(req.params.id, updated);
 
   if (status === 'approved') {
+    // Create a real 100ms room; fall back to a local placeholder if HMS is down.
+    const hmsRoomId =
+      (await createHmsRoom(`call-${req.params.id}`)) || `room-${req.params.id}`;
     const roomMeta = {
       id: `room-meta-${req.params.id}`,
       callRequestId: req.params.id,
-      hmsRoomId: `room-${req.params.id}`,
-      hmsRoleMember: 'member',
-      hmsRoleTrainer: 'trainer',
+      hmsRoomId,
+      hmsRoleMember: HMS_ROLE_MEMBER,
+      hmsRoleTrainer: HMS_ROLE_TRAINER,
     };
     roomsByRequest.set(req.params.id, roomMeta);
+    console.log(`[Room] Stored room meta for request ${req.params.id}: hmsRoomId=${hmsRoomId}`);
   }
 
   return res.json(updated);
@@ -377,19 +432,22 @@ app.get('/sync/session-logs', (req, res) => {
 });
 
 // --- Rooms ---
-app.post('/rooms', (req, res) => {
+app.post('/rooms', async (req, res) => {
   const { callRequestId } = req.body;
   if (!callRequestId) {
     return res.status(400).json({ error: 'callRequestId required' });
   }
+  const hmsRoomId =
+    (await createHmsRoom(`call-${callRequestId}`)) || `room-${callRequestId}`;
   const roomMeta = {
     id: `room-meta-${callRequestId}`,
     callRequestId,
-    hmsRoomId: `room-${callRequestId}`,
-    hmsRoleMember: 'member',
-    hmsRoleTrainer: 'trainer',
+    hmsRoomId,
+    hmsRoleMember: HMS_ROLE_MEMBER,
+    hmsRoleTrainer: HMS_ROLE_TRAINER,
   };
   roomsByRequest.set(callRequestId, roomMeta);
+  console.log(`[Room] Created room meta for ${callRequestId}: hmsRoomId=${hmsRoomId}`);
   return res.status(201).json(roomMeta);
 });
 

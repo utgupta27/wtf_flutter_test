@@ -20,6 +20,7 @@ abstract interface class VideoCallService {
     required String roomCode,
     required String userId,
     required String username,
+    required String role,
   });
   Future<void> leave();
   Future<void> toggleMic();

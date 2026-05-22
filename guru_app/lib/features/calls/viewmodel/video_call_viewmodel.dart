@@ -129,6 +129,7 @@ class VideoCallViewModel extends FamilyNotifier<VideoCallState, String> {
       roomCode: room.hmsRoomId,
       userId: SyncConstants.memberId,
       username: 'DK',
+      role: room.hmsRoleMember,
     );
   }
 

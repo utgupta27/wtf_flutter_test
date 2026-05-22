@@ -47,6 +47,7 @@ class FakeVideoCallService implements VideoCallService {
     required String roomCode,
     required String userId,
     required String username,
+    required String role,
   }) async {
     if (joinError != null) {
       _controller.add(

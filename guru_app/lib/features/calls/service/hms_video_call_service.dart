@@ -31,6 +31,7 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
     required String roomCode,
     required String userId,
     required String username,
+    required String role,
   }) async {
     if (!_initialized) {
       await _hmsSDK.build();
@@ -40,7 +41,7 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
     final token = await _fetchToken(
       roomId: roomCode,
       userId: userId,
-      role: 'member',
+      role: role,
     );
     if (token == null) {
       _controller.add(const VideoCallServiceEvent(
