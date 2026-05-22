@@ -55,6 +55,7 @@ migrate_working_dir/
 
 # Node.js
 token_server/node_modules/
+token_server/dist/
 token_server/.env
 token_server/npm-debug.log*
 token_server/yarn-debug.log*
