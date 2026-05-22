@@ -2,6 +2,22 @@ import 'package:shared/shared.dart';
 
 import 'package:trainer_app/features/auth/data/auth_repository.dart';
 import 'package:trainer_app/features/chat/data/chat_repository.dart';
+import 'package:trainer_app/features/requests/data/call_request_repository.dart';
+
+class FakeCallRequestRepository implements CallRequestRepository {
+  FakeCallRequestRepository({List<CallRequest>? requests})
+      : _requests = requests ?? [];
+  final List<CallRequest> _requests;
+
+  @override
+  Future<List<CallRequest>> getAll() async => List.from(_requests);
+
+  @override
+  Future<void> updateStatus(String id, CallRequestStatus status) async {
+    final i = _requests.indexWhere((r) => r.id == id);
+    if (i != -1) _requests[i] = _requests[i].copyWith(status: status);
+  }
+}
 
 class FakeChatRepository implements ChatRepository {
   FakeChatRepository({List<Message>? messages}) : _messages = messages ?? [];
