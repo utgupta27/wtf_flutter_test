@@ -83,7 +83,7 @@ void main() {
     testWidgets('shows Join Call button', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
-      expect(find.text('Join Call'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Join Call'), findsOneWidget);
     });
 
     testWidgets('shows Cancel button', (tester) async {
@@ -97,7 +97,7 @@ void main() {
     Future<void> joinCall(WidgetTester tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
-      await tester.tap(find.text('Join Call'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Join Call'));
       await tester.pump(); // join() fires
       await tester.pump(); // stream event processed
     }
@@ -127,7 +127,7 @@ void main() {
     Future<void> reachRating(WidgetTester tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
-      await tester.tap(find.text('Join Call'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Join Call'));
       await tester.pump();
       await tester.pump();
       // End the call
@@ -177,7 +177,7 @@ void main() {
     testWidgets('shows error message when join fails', (tester) async {
       await tester.pumpWidget(_wrap(joinError: true));
       await tester.pump();
-      await tester.tap(find.text('Join Call'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Join Call'));
       await tester.pump();
       await tester.pump();
       expect(find.textContaining('Network error'), findsOneWidget);

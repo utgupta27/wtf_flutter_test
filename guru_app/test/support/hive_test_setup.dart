@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared/shared.dart';
@@ -7,8 +8,30 @@ import 'package:shared/shared.dart';
 import 'package:guru_app/core/constants.dart';
 import '../fakes/fake_repositories.dart';
 
+final GlobalKey<ScaffoldMessengerState> guruTestScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
+/// Configures [DevContext] for widget tests that pump [GuruApp].
+void configureGuruTestDevContext() {
+  DevContext.resetForTest();
+  DevContext.configure(
+    build: const DevBuildInfo(
+      appName: 'Guru Test',
+      version: '1.0.0',
+      buildNumber: '1',
+      packageName: 'guru.test',
+    ),
+    environment: DevEnvSnapshot.fromRaw({
+      'APP': 'guru',
+      'SYNC_BASE_URL': 'http://127.0.0.1:1',
+    }),
+    messengerKey: guruTestScaffoldMessengerKey,
+  );
+}
+
 /// Opens Hive boxes used by [SyncService] in widget tests.
 Future<void> initGuruTestHive() async {
+  configureGuruTestDevContext();
   final dir = await Directory.systemTemp.createTemp('guru_hive_test');
   Hive.init(dir.path);
   Hive

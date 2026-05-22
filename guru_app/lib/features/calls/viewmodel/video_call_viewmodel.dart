@@ -114,9 +114,16 @@ class VideoCallViewModel extends FamilyNotifier<VideoCallState, String> {
         _stopTimer();
         state = state.copyWith(phase: VideoCallPhase.rating);
       case VideoCallServiceEventType.error:
+        final technical = event.message ?? 'Call error occurred';
+        AppLog.e(LogTag.rtc, 'call error', detail: technical);
+        DevContext.surfaceError(
+          userMessage: 'Couldn\'t join the call. Please try again.',
+          technicalDetail: technical,
+          tag: LogTag.rtc,
+        );
         state = state.copyWith(
           phase: VideoCallPhase.preJoin,
-          error: event.message ?? 'Call error occurred',
+          error: technical,
           isReconnecting: false,
         );
       case VideoCallServiceEventType.reconnecting:
@@ -136,10 +143,15 @@ class VideoCallViewModel extends FamilyNotifier<VideoCallState, String> {
   Future<void> preparePermissions() async {
     final bool granted = await ensureCallPermissions();
     if (!granted) {
-      state = state.copyWith(
-        error:
-            'Camera and microphone permission are required for video calls.',
+      const msg =
+          'Camera and microphone permission are required for video calls.';
+      AppLog.w(LogTag.rtc, 'permissions denied');
+      DevContext.surfaceError(
+        userMessage: 'Camera and microphone are required for video calls.',
+        technicalDetail: msg,
+        tag: LogTag.rtc,
       );
+      state = state.copyWith(error: msg);
     }
   }
 
@@ -168,13 +180,18 @@ class VideoCallViewModel extends FamilyNotifier<VideoCallState, String> {
 
     final bool granted = await ensureCallPermissions();
     if (!granted) {
-      state = state.copyWith(
-        error:
-            'Camera and microphone permission are required for video calls.',
+      const msg =
+          'Camera and microphone permission are required for video calls.';
+      DevContext.surfaceError(
+        userMessage: 'Camera and microphone are required for video calls.',
+        technicalDetail: msg,
+        tag: LogTag.rtc,
       );
+      state = state.copyWith(error: msg);
       return;
     }
 
+    AppLog.i(LogTag.rtc, 'joining call', detail: 'requestId=$_requestId');
     state = state.copyWith(phase: VideoCallPhase.connecting, error: null);
     final service = ref.read(videoCallServiceProvider);
     await service.join(

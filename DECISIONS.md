@@ -166,12 +166,12 @@ Widget → Riverpod → Repository → Hive (immediate UI)
 
 ---
 
-## ADR-016: Dev Observability → Shared Dev Panel (debug builds)
+## ADR-016: Dev Observability → Shared Dev Panel (always-on FAB)
 
 - **Status:** Accepted
-- **Decision:** `shared/lib/observability/` provides ring buffer logging (`AppLog`), env snapshot with masked secrets, and `DevToolsShell` / `DevPanel` for on-device debugging during manual QA.
-- **Rationale:** Reviewer and agents need visibility into sync/HMS failures without adb logcat alone.
-- **Scope:** Debug-oriented; not a production analytics pipeline.
+- **Decision:** `shared/lib/observability/` provides structured `AppLog` tags (`[CHAT]`, `[RTC]`, `[SCHEDULE]`, `[AUTH]`), a 20-entry ring buffer, masked `DevEnvSnapshot`, `DevBuildInfo` via `package_info_plus`, always-visible `DevToolsShell` FAB (⋮) opening `DevPanel`, and `AppErrorSurface` snackbars with **Copy error** for operational failures.
+- **Rationale:** Reviewer and agents need on-device visibility into sync/HMS/auth without logcat alone during local demo builds.
+- **Scope:** Demo DX only; production would gate behind flavor or long-press. Not a remote analytics pipeline.
 
 ---
 

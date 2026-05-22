@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared/shared.dart';
 
+import 'package:trainer_app/core/call_permissions.dart';
 import 'package:trainer_app/core/constants.dart';
 import 'package:trainer_app/features/calls/video_call_screen.dart';
 import 'package:trainer_app/providers/repository_providers.dart';
@@ -45,6 +46,7 @@ void main() {
   });
 
   setUp(() async {
+    callPermissionCheckerOverride = () async => true;
     await Hive.box(AppConstants.hiveBoxRoomMeta).put(
       _requestId,
       const RoomMeta(
@@ -56,6 +58,11 @@ void main() {
       ),
     );
   });
+
+  tearDown(() {
+    callPermissionCheckerOverride = null;
+  });
+
   group('VideoCallScreen (trainer) — pre-join', () {
     testWidgets('shows join prompt on pre-join', (tester) async {
       await tester.pumpWidget(_wrap());
@@ -72,7 +79,7 @@ void main() {
     testWidgets('shows Join Call button', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
-      expect(find.text('Join Call'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Join Call'), findsOneWidget);
     });
   });
 
@@ -80,7 +87,7 @@ void main() {
     Future<void> joinCall(WidgetTester tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
-      await tester.tap(find.text('Join Call'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Join Call'));
       await tester.pump();
       await tester.pump();
     }
@@ -100,7 +107,7 @@ void main() {
     Future<void> reachNotes(WidgetTester tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
-      await tester.tap(find.text('Join Call'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Join Call'));
       await tester.pump();
       await tester.pump();
       await tester.tap(find.byIcon(Icons.call_end_rounded));
@@ -136,7 +143,7 @@ void main() {
     testWidgets('shows error when join fails', (tester) async {
       await tester.pumpWidget(_wrap(joinError: true));
       await tester.pump();
-      await tester.tap(find.text('Join Call'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Join Call'));
       await tester.pump();
       await tester.pump();
       expect(find.textContaining('Network error'), findsOneWidget);

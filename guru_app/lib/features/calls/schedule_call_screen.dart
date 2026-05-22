@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
 import 'package:guru_app/features/calls/viewmodel/schedule_call_viewmodel.dart';
-import 'package:shared/constants/ui_copy.dart';
+import 'package:shared/shared.dart';
 
 class ScheduleCallScreen extends ConsumerWidget {
   const ScheduleCallScreen({super.key});
@@ -84,10 +84,9 @@ class ScheduleCallScreen extends ConsumerWidget {
                         await vm.submit();
                         if (context.mounted &&
                             ref.read(scheduleCallViewModelProvider).submitted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(UiCopy.callRequestedWaiting),
-                            ),
+                          AppErrorSurface.showInfo(
+                            context,
+                            UiCopy.callRequestedWaiting,
                           );
                         }
                       },

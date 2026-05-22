@@ -71,12 +71,9 @@ class HomeScreen extends ConsumerWidget {
                 color: const Color(0xFF7C3AED),
                 onTap: () {
                   if (pendingRequest.valueOrNull != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'A call request is already pending approval',
-                        ),
-                      ),
+                    AppErrorSurface.showInfo(
+                      context,
+                      'A call request is already pending approval',
                     );
                     return;
                   }

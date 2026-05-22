@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared/shared.dart';
 
-import 'package:trainer_app/core/dev_env.dart';
 import 'package:trainer_app/core/root_scaffold.dart';
 import 'package:trainer_app/core/theme/app_theme.dart';
 import 'package:trainer_app/router/app_router.dart';

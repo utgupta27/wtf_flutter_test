@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:hmssdk_flutter/hmssdk_flutter.dart';
+import 'package:shared/observability/app_log.dart';
+import 'package:shared/observability/log_tag.dart';
 import 'package:trainer_app/core/constants.dart';
 import 'package:trainer_app/features/calls/service/video_call_service.dart';
 
@@ -37,6 +39,11 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
     required String username,
     required String role,
   }) async {
+    AppLog.i(
+      LogTag.rtc,
+      'join started',
+      detail: 'roomId=$roomCode role=$role userId=$userId',
+    );
     if (!_initialized) {
       await _hmsSDK.build();
       _hmsSDK.addUpdateListener(listener: this);
@@ -48,6 +55,7 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
       role: role,
     );
     if (token == null) {
+      AppLog.e(LogTag.rtc, 'token fetch failed', detail: 'roomId=$roomCode');
       _controller.add(const VideoCallServiceEvent(
         VideoCallServiceEventType.error,
         message: 'Could not fetch call token. Is the token server running?',
@@ -61,6 +69,7 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
 
   @override
   Future<void> leave() async {
+    AppLog.i(LogTag.rtc, 'leave room');
     await _hmsSDK.leave();
     _inRoom = false;
     _remotePeerJoined = false;
@@ -229,6 +238,7 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
 
   @override
   void onJoin({required HMSRoom room}) {
+    AppLog.i(LogTag.rtc, 'joined room', detail: 'id=${room.id}');
     _inRoom = true;
     unawaited(() async {
       await _syncTracksFromPeers();
@@ -240,12 +250,15 @@ class HmsVideoCallService implements VideoCallService, HMSUpdateListener {
   }
 
   @override
-  void onHMSError({required HMSException error}) => _controller.add(
-        VideoCallServiceEvent(
-          VideoCallServiceEventType.error,
-          message: error.message,
-        ),
-      );
+  void onHMSError({required HMSException error}) {
+    AppLog.e(LogTag.rtc, 'HMS error', detail: error.message);
+    _controller.add(
+      VideoCallServiceEvent(
+        VideoCallServiceEventType.error,
+        message: error.message,
+      ),
+    );
+  }
 
   @override
   void onPeerUpdate({required HMSPeer peer, required HMSPeerUpdate update}) {}
