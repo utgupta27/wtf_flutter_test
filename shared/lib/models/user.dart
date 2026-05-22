@@ -3,8 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 part 'user.g.dart';
 
-enum UserRole { trainer, member }
-
 @HiveType(typeId: 0)
 class User extends Equatable {
   @HiveField(0)
@@ -34,8 +32,6 @@ class User extends Equatable {
     this.assignedTrainerId,
   });
 
-  UserRole get userRole => role == 'trainer' ? UserRole.trainer : UserRole.member;
-
   User copyWith({
     String? id,
     String? name,
@@ -43,16 +39,15 @@ class User extends Equatable {
     String? role,
     String? avatarUrl,
     String? assignedTrainerId,
-  }) {
-    return User(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      email: email ?? this.email,
-      role: role ?? this.role,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
-      assignedTrainerId: assignedTrainerId ?? this.assignedTrainerId,
-    );
-  }
+  }) =>
+      User(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        email: email ?? this.email,
+        role: role ?? this.role,
+        avatarUrl: avatarUrl ?? this.avatarUrl,
+        assignedTrainerId: assignedTrainerId ?? this.assignedTrainerId,
+      );
 
   Map<String, dynamic> toMap() => {
         'id': id,
@@ -76,8 +71,7 @@ class User extends Equatable {
   List<Object?> get props => [id, name, email, role, avatarUrl, assignedTrainerId];
 }
 
-// Pre-seeded personas
-class SeedUsers {
+abstract class SeedUsers {
   static const member = User(
     id: 'member-dk-001',
     name: 'DK',
