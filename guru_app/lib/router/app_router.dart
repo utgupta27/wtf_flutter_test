@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:guru_app/core/constants.dart';
 import 'package:guru_app/features/auth/auth_provider.dart';
+import 'package:guru_app/features/home/home_screen.dart';
 import 'package:guru_app/features/onboarding/onboarding_screen.dart';
 
 class _PlaceholderScreen extends StatelessWidget {
@@ -56,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/home',
-        builder: (context, state) => const _PlaceholderScreen('Home'),
+        builder: (context, state) => const HomeScreen(),
       ),
       GoRoute(
         path: '/chat',

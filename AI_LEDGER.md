@@ -16,4 +16,46 @@
 
 ---
 
+## Entry 002 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #1 — Shared data models (User, Message, CallRequest, SessionLog, RoomMeta) |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | 5 Hive-annotated models with typed adapters, MessageStatus + CallRequestStatus enums, SeedUsers constants, barrel export, 4 unit tests passing, flutter analyze → 0 issues. |
+| **Files Modified** | shared/lib/models/*.dart, shared/lib/shared.dart, shared/test/shared_test.dart, shared/pubspec.yaml |
+| **Commit** | `feat(shared): add Hive data models` |
+
+## Entry 003 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #16 — Node token server: POST /token for 100ms JWT |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | Express server with POST /token (HS256 JWT) and GET /health. Then migrated to TypeScript + ESM: src/index.ts with TokenRequestBody/TokenPayload interfaces, tsconfig.json (NodeNext), eslint.config.js (typescript-eslint v8). npm run lint → 0, npm run build → clean. |
+| **Files Modified** | token_server/src/index.ts, token_server/tsconfig.json, token_server/eslint.config.js, token_server/package.json, .gitignore |
+| **Commit** | `feat(node): implement 100ms JWT token endpoint` → `refactor(node): migrate to TypeScript and ES modules` |
+
+## Entry 004 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #2 — Guru mock auth: auto-login as DK, seed profile |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | AuthNotifier seeds DK profile in Hive on first launch. Hive adapters registered in main.dart. ProviderScope + GoRouter wired in app.dart. AppTheme (#1769E0), AppConstants. flutter analyze → 0, flutter test → 1 passed. |
+| **Files Modified** | guru_app/lib/main.dart, guru_app/lib/app.dart, guru_app/lib/features/auth/auth_provider.dart, guru_app/lib/router/app_router.dart, guru_app/lib/core/constants.dart, guru_app/lib/core/theme/app_theme.dart |
+| **Commit** | `feat(guru): add mock auth, app structure, and routing scaffold` |
+
+## Entry 005 — 2026-05-22
+
+| Field | Value |
+|---|---|
+| **Prompt/Intent** | #3 — Guru onboarding: 2-slide flow |
+| **Tool** | Claude Code (claude-sonnet-4-6) |
+| **Output Summary** | OnboardingScreen with PageView (2 slides), Skip/Next/Get Started controls, animated OnboardingDot indicator. onComplete saves Hive flag + navigates to /home. Router wired to real screen. 9/9 widget tests passing, flutter analyze → 0. |
+| **Files Modified** | guru_app/lib/features/onboarding/onboarding_screen.dart, guru_app/lib/router/app_router.dart, guru_app/test/features/onboarding/onboarding_screen_test.dart |
+| **Commit** | `feat(guru): add 2-slide onboarding flow` |
+
+---
+
 _Append new entries below after each completed task._
