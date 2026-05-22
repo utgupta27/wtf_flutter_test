@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
-import 'package:shared/shared.dart';
-
-import 'package:guru_app/core/constants.dart';
-import 'package:guru_app/features/auth/auth_provider.dart';
+import 'package:guru_app/features/auth/viewmodel/auth_viewmodel.dart';
+import 'package:guru_app/features/chat/chat_list_screen.dart';
 import 'package:guru_app/features/chat/conversation_screen.dart';
 import 'package:guru_app/features/home/home_screen.dart';
 import 'package:guru_app/features/onboarding/onboarding_screen.dart';
+import 'package:guru_app/features/onboarding/viewmodel/onboarding_viewmodel.dart';
 
 class _PlaceholderScreen extends StatelessWidget {
   const _PlaceholderScreen(this.title);
@@ -23,18 +21,15 @@ class _PlaceholderScreen extends StatelessWidget {
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final authState = ref.watch(authViewModelProvider);
+  final onboardingDone = ref.watch(onboardingViewModelProvider);
 
   return GoRouter(
     initialLocation: '/splash',
-    redirect: (context, state) async {
+    redirect: (context, state) {
       if (authState.isLoading) {
         return '/splash';
       }
-      final settingsBox = Hive.box(AppConstants.hiveBoxSettings);
-      final onboardingDone =
-          settingsBox.get(AppConstants.settingsKeyOnboardingDone, defaultValue: false) as bool;
-
       if (!onboardingDone && state.matchedLocation != '/onboarding') {
         return '/onboarding';
       }
@@ -46,17 +41,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/splash',
-        builder: (context, state) => const _PlaceholderScreen('Splash'),
+        builder: (context, state) => const _PlaceholderScreen(''),
       ),
       GoRoute(
         path: '/onboarding',
-        builder: (context, state) => OnboardingScreen(
-          onComplete: () {
-            Hive.box(AppConstants.hiveBoxSettings)
-                .put(AppConstants.settingsKeyOnboardingDone, true);
-            context.go('/home');
-          },
-        ),
+        builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
         path: '/home',
@@ -64,12 +53,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/chat',
-        builder: (context, state) => ConversationScreen(
-          currentUserId: SeedUsers.member.id,
-          otherUserName: SeedUsers.trainer.name,
-          messages: const [],
-          onSend: (_) {},
-        ),
+        builder: (context, state) => const ChatListScreen(),
+        routes: [
+          GoRoute(
+            path: ':chatId',
+            builder: (context, state) => ConversationScreen(
+              chatId: state.pathParameters['chatId']!,
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: '/schedule',

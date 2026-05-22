@@ -7,4 +7,5 @@ abstract class AppConstants {
   static const hiveBoxRoomMeta = 'room_meta';
   static const hiveBoxSettings = 'settings';
   static const settingsKeyOnboardingDone = 'onboarding_done';
+  static const defaultChatId = 'chat-dk-aarav';
 }

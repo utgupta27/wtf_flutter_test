@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:guru_app/core/theme/app_theme.dart';
+import 'package:guru_app/features/onboarding/viewmodel/onboarding_viewmodel.dart';
 
 class _OnboardingPage {
   const _OnboardingPage({
@@ -26,18 +29,22 @@ const _pages = [
   ),
 ];
 
-class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key, required this.onComplete});
-
-  final VoidCallback onComplete;
+class OnboardingScreen extends ConsumerStatefulWidget {
+  const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _controller = PageController();
   int _currentPage = 0;
+
+  void _complete() {
+    ref.read(onboardingViewModelProvider.notifier).complete();
+    // Navigation is a view concern: drive it from ViewModel state
+    context.go('/home');
+  }
 
   void _next() {
     if (_currentPage < _pages.length - 1) {
@@ -46,7 +53,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         curve: Curves.easeInOut,
       );
     } else {
-      widget.onComplete();
+      _complete();
     }
   }
 
@@ -70,7 +77,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: TextButton(
-                  onPressed: widget.onComplete,
+                  onPressed: _complete,
                   child: const Text(
                     'Skip',
                     style: TextStyle(color: AppColors.subtle, fontSize: 14),
