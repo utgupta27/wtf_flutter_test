@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:guru_app/features/auth/viewmodel/auth_viewmodel.dart';
 import 'package:guru_app/features/calls/schedule_call_screen.dart';
+import 'package:guru_app/features/calls/video_call_screen.dart';
 import 'package:guru_app/features/chat/chat_list_screen.dart';
 import 'package:guru_app/features/chat/conversation_screen.dart';
 import 'package:guru_app/features/home/home_screen.dart';
@@ -67,6 +68,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/schedule',
         builder: (context, state) => const ScheduleCallScreen(),
+      ),
+      GoRoute(
+        path: '/call/:requestId',
+        builder: (context, state) => VideoCallScreen(
+          requestId: state.pathParameters['requestId']!,
+        ),
       ),
       GoRoute(
         path: '/sessions',
