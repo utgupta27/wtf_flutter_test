@@ -1,6 +1,16 @@
+export 'package:shared/constants/sync_constants.dart';
 export 'package:shared/models/user.dart';
 export 'package:shared/models/seed_trainers.dart';
 export 'package:shared/models/message.dart';
+export 'package:shared/models/message_json.dart';
 export 'package:shared/models/call_request.dart';
+export 'package:shared/models/call_request_json.dart';
 export 'package:shared/models/session_log.dart';
+export 'package:shared/models/session_log_json.dart';
 export 'package:shared/models/room_meta.dart';
+export 'package:shared/models/room_meta_json.dart';
+export 'package:shared/sync/sync_service.dart';
+export 'package:shared/sync/message_sync_service.dart';
+export 'package:shared/sync/message_status_merge.dart';
+export 'package:shared/models/typing_presence.dart';
+export 'package:shared/chat/chat.dart';
