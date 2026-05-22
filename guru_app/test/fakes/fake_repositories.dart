@@ -1,6 +1,7 @@
 import 'package:shared/shared.dart';
 
 import 'package:guru_app/features/auth/data/auth_repository.dart';
+import 'package:guru_app/features/calls/data/call_request_repository.dart';
 import 'package:guru_app/features/chat/data/chat_repository.dart';
 import 'package:guru_app/features/onboarding/data/onboarding_repository.dart';
 
@@ -24,6 +25,40 @@ class FakeOnboardingRepository implements OnboardingRepository {
 
   @override
   Future<void> setDone() async => _done = true;
+}
+
+class FakeCallRequestRepository implements CallRequestRepository {
+  FakeCallRequestRepository({List<CallRequest>? requests, bool conflictResult = false})
+      : _requests = requests ?? [],
+        _conflictResult = conflictResult;
+
+  final List<CallRequest> _requests;
+  final bool _conflictResult;
+
+  @override
+  Future<List<CallRequest>> getAll() async => List.from(_requests);
+
+  @override
+  Future<CallRequest?> getById(String id) async =>
+      _requests.cast<CallRequest?>().firstWhere(
+            (r) => r?.id == id,
+            orElse: () => null,
+          );
+
+  @override
+  Future<void> save(CallRequest request) async => _requests.add(request);
+
+  @override
+  Future<void> updateStatus(String id, CallRequestStatus status) async {
+    final i = _requests.indexWhere((r) => r.id == id);
+    if (i != -1) {
+      _requests[i] = _requests[i].copyWith(status: status);
+    }
+  }
+
+  @override
+  Future<bool> hasConflict(DateTime scheduledFor, String trainerId) async =>
+      _conflictResult;
 }
 
 class FakeChatRepository implements ChatRepository {
