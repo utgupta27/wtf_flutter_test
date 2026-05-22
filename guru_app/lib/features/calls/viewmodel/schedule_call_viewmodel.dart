@@ -43,6 +43,8 @@ class ScheduleCallState {
 const _sentinel = Object();
 
 class ScheduleCallViewModel extends Notifier<ScheduleCallState> {
+  static const _chatId = SyncConstants.defaultChatId;
+
   @override
   ScheduleCallState build() => ScheduleCallState(
         selectedDate: DateTime.now(),
@@ -78,6 +80,7 @@ class ScheduleCallViewModel extends Notifier<ScheduleCallState> {
 
     final conflict = await repo.hasConflict(slot, trainerId);
     if (conflict) {
+      AppLog.w(LogTag.schedule, 'schedule conflict', detail: 'slot=$slot');
       state = state.copyWith(
         isSubmitting: false,
         error: 'This slot is already booked. Please choose another time.',
@@ -96,6 +99,24 @@ class ScheduleCallViewModel extends Notifier<ScheduleCallState> {
 
     await repo.save(request);
     ref.read(syncServiceProvider).enqueueCallRequest(request);
+
+    final systemMsg = Message(
+      id: '${request.id}-requested',
+      chatId: _chatId,
+      senderId: 'system',
+      receiverId: SyncConstants.trainerId,
+      text: UiCopy.callRequestedWaiting,
+      createdAt: DateTime.now(),
+      status: MessageStatus.sent,
+    );
+    await ref.read(chatRepositoryProvider).saveMessage(systemMsg);
+    ref.read(syncServiceProvider).enqueueMessage(systemMsg);
+    AppLog.i(
+      LogTag.schedule,
+      'call request created',
+      detail: 'id=${request.id} scheduledFor=$slot',
+    );
+
     state = state.copyWith(isSubmitting: false, submitted: true);
   }
 }

@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared/constants/sync_constants.dart';
+import 'package:shared/observability/app_log.dart';
+import 'package:shared/observability/log_tag.dart';
 import 'package:shared/models/call_request.dart';
 import 'package:shared/models/call_request_json.dart';
 import 'package:shared/models/message.dart';
@@ -84,7 +86,7 @@ class SyncService {
       await _pullRemote();
       _tickController.add(null);
     } catch (e, st) {
-      debugPrint('SyncService error: $e\n$st');
+      AppLog.e(LogTag.chat, 'syncOnce failed', error: e, stackTrace: st);
     } finally {
       _busy = false;
       if (_syncAgain) {
@@ -115,7 +117,7 @@ class SyncService {
         _tickController.add(null);
       }
     } catch (e, st) {
-      debugPrint('SyncService message sync error: $e\n$st');
+      AppLog.e(LogTag.chat, 'syncMessagesNow failed', error: e, stackTrace: st);
     } finally {
       _busy = false;
       if (_syncAgain) {
@@ -228,8 +230,12 @@ class SyncService {
       if (ok) {
         await _outboxBox.delete(key);
         changed = true;
-      } else if (kDebugMode) {
-        debugPrint('SyncService: failed to push $type for outbox key $key');
+      } else {
+        AppLog.w(
+          LogTag.chat,
+          'failed to push outbox item',
+          detail: 'type=$type key=$key',
+        );
       }
     }
     return changed;
@@ -348,11 +354,11 @@ class SyncService {
     try {
       final res = await http.get(uri);
       if (res.statusCode != 200) {
-        if (kDebugMode) {
-          debugPrint(
-            'SyncService: GET /sync/messages failed ${res.statusCode} ${res.body}',
-          );
-        }
+        AppLog.w(
+          LogTag.chat,
+          'GET /sync/messages failed',
+          detail: 'status=${res.statusCode}',
+        );
         return false;
       }
       final body = jsonDecode(res.body) as Map<String, dynamic>;
@@ -382,9 +388,7 @@ class SyncService {
       }
       return changed;
     } catch (e) {
-      if (kDebugMode) {
-        debugPrint('SyncService: pull messages error $e');
-      }
+      AppLog.e(LogTag.chat, 'pull messages error', error: e);
       return false;
     }
   }

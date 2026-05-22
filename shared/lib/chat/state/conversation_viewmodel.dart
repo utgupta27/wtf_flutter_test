@@ -7,6 +7,8 @@ import 'package:shared/chat/state/chat_providers.dart';
 import 'package:shared/chat/state/conversation_state.dart';
 import 'package:shared/chat/state/peer_typing_provider.dart';
 import 'package:shared/models/message.dart';
+import 'package:shared/observability/app_log.dart';
+import 'package:shared/observability/log_tag.dart';
 import 'package:shared/sync/message_status_merge.dart';
 import 'package:uuid/uuid.dart';
 
@@ -158,6 +160,7 @@ class ConversationViewModel
     final current = state.valueOrNull ?? const ConversationState(messages: []);
 
     stopTypingSignal();
+    AppLog.i(LogTag.chat, 'send message', detail: 'chatId=${params.chatId}');
 
     final optimistic = Message(
       id: _uuid.v4(),
@@ -178,7 +181,11 @@ class ConversationViewModel
     await repo.saveMessage(optimistic);
     sync.enqueueMessage(optimistic);
 
-    await sync.syncMessagesNow();
+    try {
+      await sync.syncMessagesNow();
+    } catch (e, st) {
+      AppLog.e(LogTag.chat, 'send sync failed', error: e, stackTrace: st);
+    }
 
     final updated = await repo.getMessages(params.chatId);
     final synced = updated.firstWhere(
@@ -206,6 +213,7 @@ class ConversationViewModel
         isSending: false,
       ),
     );
+    AppLog.i(LogTag.chat, 'message sent', detail: 'id=${optimistic.id}');
   }
 
   Future<void> sendImage(String filePath) async {

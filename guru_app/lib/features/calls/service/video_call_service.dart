@@ -1,9 +1,32 @@
-enum VideoCallServiceEventType { joined, left, error, reconnecting, reconnected }
+import 'package:hmssdk_flutter/hmssdk_flutter.dart';
+
+enum VideoCallServiceEventType {
+  joined,
+  left,
+  error,
+  reconnecting,
+  reconnected,
+  tracksUpdated,
+  deviceStateUpdated,
+}
 
 class VideoCallServiceEvent {
-  const VideoCallServiceEvent(this.type, {this.message});
+  const VideoCallServiceEvent(
+    this.type, {
+    this.message,
+    this.localVideo,
+    this.remoteVideo,
+    this.isMicOn,
+    this.isCameraOn,
+    this.remotePeerJoined,
+  });
   final VideoCallServiceEventType type;
   final String? message;
+  final HMSVideoTrack? localVideo;
+  final HMSVideoTrack? remoteVideo;
+  final bool? isMicOn;
+  final bool? isCameraOn;
+  final bool? remotePeerJoined;
 }
 
 abstract interface class VideoCallService {

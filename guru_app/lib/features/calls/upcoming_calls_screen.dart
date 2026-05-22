@@ -6,14 +6,14 @@ import 'package:shared/shared.dart';
 
 import 'package:guru_app/core/theme/app_theme.dart';
 import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
-import 'package:guru_app/features/calls/viewmodel/upcoming_calls_viewmodel.dart';
+import 'package:guru_app/features/calls/providers/call_list_providers.dart';
 
 class UpcomingCallsScreen extends ConsumerWidget {
   const UpcomingCallsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(upcomingCallsViewModelProvider);
+    final state = ref.watch(upcomingApprovedCallsProvider);
 
     return GuruSubpageScaffold(
       title: const Text('Upcoming Calls'),

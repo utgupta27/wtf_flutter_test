@@ -62,10 +62,24 @@ class FakeVideoCallService implements VideoCallService {
       _controller.add(const VideoCallServiceEvent(VideoCallServiceEventType.left));
 
   @override
-  Future<void> toggleMic() async => _micEnabled = !_micEnabled;
+  Future<void> toggleMic() async {
+    _micEnabled = !_micEnabled;
+    _controller.add(VideoCallServiceEvent(
+      VideoCallServiceEventType.deviceStateUpdated,
+      isMicOn: _micEnabled,
+      isCameraOn: _cameraEnabled,
+    ));
+  }
 
   @override
-  Future<void> toggleCamera() async => _cameraEnabled = !_cameraEnabled;
+  Future<void> toggleCamera() async {
+    _cameraEnabled = !_cameraEnabled;
+    _controller.add(VideoCallServiceEvent(
+      VideoCallServiceEventType.deviceStateUpdated,
+      isMicOn: _micEnabled,
+      isCameraOn: _cameraEnabled,
+    ));
+  }
 
   @override
   Future<void> flipCamera() async {}

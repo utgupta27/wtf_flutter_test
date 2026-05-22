@@ -26,6 +26,7 @@ dependencies:
 
   # 100ms Video SDK
   hmssdk_flutter: ^1.11.0
+  permission_handler: ^11.3.1
 
   # Utilities
   uuid: ^4.5.1

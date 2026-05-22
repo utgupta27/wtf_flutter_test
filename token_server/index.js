@@ -171,7 +171,7 @@ function signManagementToken() {
       nbf: issuedAt,
     },
     APP_SECRET,
-    { algorithm: 'HS256', expiresIn: '24h' },
+    { algorithm: 'HS256', expiresIn: '24h', jwtid: uuidv4() },
   );
 }
 

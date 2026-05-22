@@ -13,8 +13,10 @@ class AuthViewModel extends AsyncNotifier<User> {
     final repo = ref.read(authRepositoryProvider);
     final existing = await repo.getUser(SeedUsers.member.id);
     if (existing != null) {
+      AppLog.i(LogTag.auth, 'member session loaded', detail: 'id=${existing.id}');
       return existing;
     }
+    AppLog.i(LogTag.auth, 'member placeholder until onboarding');
     // In-memory placeholder until onboarding persists the profile.
     return const User(
       id: 'member-dk-001',

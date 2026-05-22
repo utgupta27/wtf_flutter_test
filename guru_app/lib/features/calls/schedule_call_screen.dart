@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
 import 'package:guru_app/features/calls/viewmodel/schedule_call_viewmodel.dart';
+import 'package:shared/constants/ui_copy.dart';
 
 class ScheduleCallScreen extends ConsumerWidget {
   const ScheduleCallScreen({super.key});
@@ -85,9 +86,7 @@ class ScheduleCallScreen extends ConsumerWidget {
                             ref.read(scheduleCallViewModelProvider).submitted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text(
-                                'Pending approval by Aarav',
-                              ),
+                              content: Text(UiCopy.callRequestedWaiting),
                             ),
                           );
                         }
@@ -219,7 +218,7 @@ class _SuccessView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Pending approval by Aarav',
+                UiCopy.callRequestedWaiting,
                 textAlign: TextAlign.center,
                 style: TextStyle(fontWeight: FontWeight.w500),
               ),

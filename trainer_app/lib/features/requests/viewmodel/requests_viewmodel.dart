@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:shared/shared.dart';
 
 import 'package:trainer_app/providers/repository_providers.dart';
@@ -28,19 +27,19 @@ class RequestsViewModel extends AsyncNotifier<List<CallRequest>> {
     }
     if (request == null) return;
 
+    AppLog.i(LogTag.schedule, 'approve call request', detail: 'id=$requestId');
     await repo.updateStatus(requestId, CallRequestStatus.approved);
     ref.read(syncServiceProvider).enqueueCallRequestPatch(
           requestId,
           CallRequestStatus.approved,
         );
 
-    final timeLabel = DateFormat('h:mm a').format(request.scheduledFor);
     final systemMsg = Message(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       chatId: _chatId,
       senderId: 'system',
       receiverId: SyncConstants.memberId,
-      text: 'Call approved for $timeLabel',
+      text: UiCopy.callApprovedFor(request.scheduledFor),
       createdAt: DateTime.now(),
       status: MessageStatus.sent,
     );
@@ -51,6 +50,11 @@ class RequestsViewModel extends AsyncNotifier<List<CallRequest>> {
   }
 
   Future<void> decline(String requestId, {required String reason}) async {
+    AppLog.i(
+      LogTag.schedule,
+      'decline call request',
+      detail: 'id=$requestId reason=$reason',
+    );
     await ref
         .read(callRequestRepositoryProvider)
         .updateStatus(requestId, CallRequestStatus.declined);
@@ -65,7 +69,7 @@ class RequestsViewModel extends AsyncNotifier<List<CallRequest>> {
       chatId: _chatId,
       senderId: 'system',
       receiverId: SyncConstants.memberId,
-      text: 'Call declined: $reason',
+      text: UiCopy.callDeclined(reason),
       createdAt: DateTime.now(),
       status: MessageStatus.sent,
     );

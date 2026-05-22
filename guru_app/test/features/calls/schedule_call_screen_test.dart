@@ -13,6 +13,7 @@ import '../../support/hive_test_setup.dart';
 
 Widget _wrap({bool conflictResult = false}) => ProviderScope(
       overrides: [
+        chatRepositoryProvider.overrideWithValue(FakeChatRepository()),
         callRequestRepositoryProvider.overrideWithValue(
           FakeCallRequestRepository(conflictResult: conflictResult),
         ),
@@ -95,7 +96,7 @@ void main() {
       await tester.tap(find.text('Request Call'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Pending approval by Aarav'), findsWidgets);
+      expect(find.text(UiCopy.callRequestedWaiting), findsWidgets);
     });
 
     testWidgets('shows conflict error when slot is already booked', (tester) async {

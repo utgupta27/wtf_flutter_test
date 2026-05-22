@@ -77,6 +77,12 @@ void main() {
       expect(find.text('Aarav'), findsOneWidget);
     });
 
+    testWidgets('shows empty chat copy when no messages', (tester) async {
+      await tester.pumpWidget(_wrap());
+      await tester.pump();
+      expect(find.text(UiCopy.emptyChat), findsOneWidget);
+    });
+
     testWidgets('renders member bubble text', (tester) async {
       await tester.pumpWidget(_wrap(messages: _seedMessages));
       await tester.pump();

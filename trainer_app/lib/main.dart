@@ -5,6 +5,8 @@ import 'package:shared/shared.dart';
 
 import 'package:trainer_app/app.dart';
 import 'package:trainer_app/core/constants.dart';
+import 'package:trainer_app/core/dev_env.dart';
+import 'package:trainer_app/core/root_scaffold.dart';
 import 'package:trainer_app/providers/sync_provider.dart';
 
 void main() async {
@@ -30,6 +32,15 @@ void main() async {
     Hive.openBox<dynamic>(AppConstants.hiveBoxSyncOutbox),
     Hive.openBox<dynamic>(SyncConstants.hiveBoxSyncTyping),
   ]);
+
+  final buildInfo = await DevBuildInfo.load();
+  final env = buildTrainerDevEnv();
+  DevContext.configure(
+    build: buildInfo,
+    environment: env,
+    messengerKey: rootScaffoldMessengerKey,
+  );
+  AppLog.i(LogTag.auth, 'Trainer app started');
 
   runApp(
     ProviderScope(

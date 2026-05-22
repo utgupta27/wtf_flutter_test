@@ -4,6 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared/shared.dart';
 
 import 'package:guru_app/core/constants.dart';
+import 'package:guru_app/core/dev_env.dart';
+import 'package:guru_app/core/root_scaffold.dart';
 import 'package:guru_app/app.dart';
 import 'package:guru_app/providers/sync_provider.dart';
 
@@ -29,6 +31,15 @@ void main() async {
     Hive.openBox<dynamic>(AppConstants.hiveBoxSyncOutbox),
     Hive.openBox<dynamic>(SyncConstants.hiveBoxSyncTyping),
   ]);
+
+  final buildInfo = await DevBuildInfo.load();
+  final env = buildGuruDevEnv();
+  DevContext.configure(
+    build: buildInfo,
+    environment: env,
+    messengerKey: rootScaffoldMessengerKey,
+  );
+  AppLog.i(LogTag.auth, 'Guru app started');
 
   runApp(
     ProviderScope(

@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared/shared.dart';
 
+import 'package:hmssdk_flutter/hmssdk_flutter.dart';
+import 'package:trainer_app/core/call_permissions.dart';
 import 'package:trainer_app/core/constants.dart';
 import 'package:trainer_app/providers/repository_providers.dart';
 import 'package:trainer_app/providers/sync_provider.dart';
@@ -20,6 +22,9 @@ class VideoCallState {
     this.durationSec = 0,
     this.trainerNote = '',
     this.error,
+    this.localVideo,
+    this.remoteVideo,
+    this.remotePeerJoined = false,
   });
 
   final VideoCallPhase phase;
@@ -29,6 +34,9 @@ class VideoCallState {
   final int durationSec;
   final String trainerNote;
   final String? error;
+  final HMSVideoTrack? localVideo;
+  final HMSVideoTrack? remoteVideo;
+  final bool remotePeerJoined;
 
   VideoCallState copyWith({
     VideoCallPhase? phase,
@@ -38,6 +46,9 @@ class VideoCallState {
     int? durationSec,
     String? trainerNote,
     Object? error = _sentinel,
+    Object? localVideo = _sentinel,
+    Object? remoteVideo = _sentinel,
+    bool? remotePeerJoined,
   }) =>
       VideoCallState(
         phase: phase ?? this.phase,
@@ -47,6 +58,13 @@ class VideoCallState {
         durationSec: durationSec ?? this.durationSec,
         trainerNote: trainerNote ?? this.trainerNote,
         error: error == _sentinel ? this.error : error as String?,
+        localVideo: localVideo == _sentinel
+            ? this.localVideo
+            : localVideo as HMSVideoTrack?,
+        remoteVideo: remoteVideo == _sentinel
+            ? this.remoteVideo
+            : remoteVideo as HMSVideoTrack?,
+        remotePeerJoined: remotePeerJoined ?? this.remotePeerJoined,
       );
 }
 
@@ -73,10 +91,18 @@ class VideoCallViewModel extends FamilyNotifier<VideoCallState, String> {
     switch (event.type) {
       case VideoCallServiceEventType.joined:
         _startTimer();
+        final VideoCallService service = ref.read(videoCallServiceProvider);
         state = state.copyWith(
           phase: VideoCallPhase.inCall,
           error: null,
           isReconnecting: false,
+          isMicOn: service.isMicEnabled,
+          isCameraOn: service.isCameraEnabled,
+        );
+      case VideoCallServiceEventType.deviceStateUpdated:
+        state = state.copyWith(
+          isMicOn: event.isMicOn ?? state.isMicOn,
+          isCameraOn: event.isCameraOn ?? state.isCameraOn,
         );
       case VideoCallServiceEventType.left:
         _stopTimer();
@@ -91,6 +117,23 @@ class VideoCallViewModel extends FamilyNotifier<VideoCallState, String> {
         state = state.copyWith(isReconnecting: true);
       case VideoCallServiceEventType.reconnected:
         state = state.copyWith(isReconnecting: false);
+      case VideoCallServiceEventType.tracksUpdated:
+        state = state.copyWith(
+          localVideo: event.localVideo,
+          remoteVideo: event.remoteVideo,
+          remotePeerJoined: event.remotePeerJoined ?? state.remotePeerJoined,
+        );
+    }
+  }
+
+  /// Requests camera/mic before the user joins or toggles devices.
+  Future<void> preparePermissions() async {
+    final bool granted = await ensureCallPermissions();
+    if (!granted) {
+      state = state.copyWith(
+        error:
+            'Camera and microphone permission are required for video calls.',
+      );
     }
   }
 
@@ -121,6 +164,15 @@ class VideoCallViewModel extends FamilyNotifier<VideoCallState, String> {
       return;
     }
 
+    final bool granted = await ensureCallPermissions();
+    if (!granted) {
+      state = state.copyWith(
+        error:
+            'Camera and microphone permission are required for video calls.',
+      );
+      return;
+    }
+
     state = state.copyWith(phase: VideoCallPhase.connecting, error: null);
     await ref.read(videoCallServiceProvider).join(
           roomCode: room.hmsRoomId,
@@ -135,13 +187,15 @@ class VideoCallViewModel extends FamilyNotifier<VideoCallState, String> {
   }
 
   Future<void> toggleMic() async {
-    await ref.read(videoCallServiceProvider).toggleMic();
-    state = state.copyWith(isMicOn: !state.isMicOn);
+    final VideoCallService service = ref.read(videoCallServiceProvider);
+    await service.toggleMic();
+    state = state.copyWith(isMicOn: service.isMicEnabled);
   }
 
   Future<void> toggleCamera() async {
-    await ref.read(videoCallServiceProvider).toggleCamera();
-    state = state.copyWith(isCameraOn: !state.isCameraOn);
+    final VideoCallService service = ref.read(videoCallServiceProvider);
+    await service.toggleCamera();
+    state = state.copyWith(isCameraOn: service.isCameraEnabled);
   }
 
   Future<void> flipCamera() async {

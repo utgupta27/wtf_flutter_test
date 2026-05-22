@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared/shared.dart';
 
+import 'package:guru_app/core/call_permissions.dart';
 import 'package:guru_app/core/constants.dart';
 import 'package:guru_app/features/calls/video_call_screen.dart';
 import 'package:guru_app/providers/repository_providers.dart';
@@ -48,6 +49,7 @@ void main() {
   });
 
   setUp(() async {
+    callPermissionCheckerOverride = () async => true;
     final box = Hive.box(AppConstants.hiveBoxRoomMeta);
     await box.put(
       _requestId,
@@ -60,11 +62,16 @@ void main() {
       ),
     );
   });
+
+  tearDown(() {
+    callPermissionCheckerOverride = null;
+  });
+
   group('VideoCallScreen — pre-join', () {
-    testWidgets('shows AppBar with Ready to Join?', (tester) async {
+    testWidgets('shows join prompt on pre-join', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
-      expect(find.text('Ready to Join?'), findsOneWidget);
+      expect(find.text(UiCopy.joinPrompt), findsOneWidget);
     });
 
     testWidgets('shows trainer name Aarav', (tester) async {

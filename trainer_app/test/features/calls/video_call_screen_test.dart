@@ -57,10 +57,10 @@ void main() {
     );
   });
   group('VideoCallScreen (trainer) — pre-join', () {
-    testWidgets('shows Ready to Join AppBar', (tester) async {
+    testWidgets('shows join prompt on pre-join', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pump();
-      expect(find.text('Ready to Join?'), findsOneWidget);
+      expect(find.text(UiCopy.joinPrompt), findsOneWidget);
     });
 
     testWidgets('shows member name DK', (tester) async {

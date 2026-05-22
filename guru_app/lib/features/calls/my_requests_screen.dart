@@ -51,7 +51,7 @@ class _RequestTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final time = DateFormat('EEE, MMM d · h:mm a').format(request.scheduledFor);
     final statusLabel = switch (request.status) {
-      CallRequestStatus.pending => 'Pending approval by Aarav',
+      CallRequestStatus.pending => UiCopy.callRequestedWaiting,
       CallRequestStatus.approved => 'Approved',
       CallRequestStatus.declined => 'Declined',
       CallRequestStatus.cancelled => 'Cancelled',

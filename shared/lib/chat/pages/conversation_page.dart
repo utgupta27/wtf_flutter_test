@@ -11,6 +11,7 @@ import 'package:shared/chat/widgets/chat_input_bar.dart';
 import 'package:shared/chat/widgets/quick_reply_bar.dart';
 import 'package:shared/chat/widgets/home_message_sync_listener.dart';
 import 'package:shared/chat/widgets/typing_indicator.dart';
+import 'package:shared/constants/ui_copy.dart';
 
 /// Shared conversation UI; app wraps with scaffold and optional actions.
 class ConversationPage extends ConsumerStatefulWidget {
@@ -210,25 +211,49 @@ class _ConversationContent extends StatelessWidget {
           child: RefreshIndicator(
             onRefresh:
                 conversation.hasOlderMessages ? onLoadOlder : () async {},
-            child: ListView.builder(
-              controller: scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              itemCount: visible.length + (conversation.isPeerTyping ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (conversation.isPeerTyping && index == visible.length) {
-                  return const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 8, bottom: 4),
-                      child: ChatTypingIndicator(),
-                    ),
-                  );
-                }
-                final message = visible[index];
-                return ChatBubble(message: message, config: config);
-              },
-            ),
+            child: visible.isEmpty && !conversation.isPeerTyping
+                ? ListView(
+                    controller: scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: const [
+                      SizedBox(height: 48),
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            UiCopy.emptyChat,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: ChatTheme.subtle,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : ListView.builder(
+                    controller: scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    itemCount:
+                        visible.length + (conversation.isPeerTyping ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (conversation.isPeerTyping &&
+                          index == visible.length) {
+                        return const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 8, bottom: 4),
+                            child: ChatTypingIndicator(),
+                          ),
+                        );
+                      }
+                      final message = visible[index];
+                      return ChatBubble(message: message, config: config);
+                    },
+                  ),
           ),
         ),
         ChatQuickReplyBar(

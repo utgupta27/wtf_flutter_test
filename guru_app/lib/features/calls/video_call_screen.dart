@@ -1,18 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hmssdk_flutter/hmssdk_flutter.dart';
 
 import 'package:guru_app/core/widgets/guru_subpage_scaffold.dart';
 import 'package:guru_app/features/calls/viewmodel/video_call_viewmodel.dart';
+import 'package:shared/constants/ui_copy.dart';
 
-class VideoCallScreen extends ConsumerWidget {
+class VideoCallScreen extends ConsumerStatefulWidget {
   const VideoCallScreen({super.key, required this.requestId});
   final String requestId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(videoCallViewModelProvider(requestId));
-    final vm = ref.read(videoCallViewModelProvider(requestId).notifier);
+  ConsumerState<VideoCallScreen> createState() => _VideoCallScreenState();
+}
+
+class _VideoCallScreenState extends ConsumerState<VideoCallScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref
+          .read(videoCallViewModelProvider(widget.requestId).notifier)
+          .preparePermissions();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(videoCallViewModelProvider(widget.requestId));
+    final vm = ref.read(videoCallViewModelProvider(widget.requestId).notifier);
 
     return switch (state.phase) {
       VideoCallPhase.preJoin => _PreJoinView(
@@ -60,12 +77,18 @@ class _PreJoinView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GuruSubpageScaffold(
-      title: const Text('Ready to Join?'),
+      title: const Text('Join Call'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
+            const Text(
+              UiCopy.joinPrompt,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
             const CircleAvatar(
               radius: 48,
               child: Text('A', style: TextStyle(fontSize: 36)),
@@ -92,15 +115,27 @@ class _PreJoinView extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 24),
-            Container(
-              height: 160,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Center(
-                child: Icon(Icons.videocam_rounded, size: 48, color: Colors.grey),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                height: 160,
+                width: double.infinity,
+                child: _CallVideoSurface(
+                  track: state.isCameraOn ? state.localVideo : null,
+                  setMirror: true,
+                  placeholder: ColoredBox(
+                    color: Colors.grey.shade200,
+                    child: Center(
+                      child: Icon(
+                        state.isCameraOn
+                            ? Icons.videocam_rounded
+                            : Icons.videocam_off_rounded,
+                        size: 48,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -213,21 +248,56 @@ class _InCallView extends StatelessWidget {
                   ),
                 ),
               ),
-            // Remote video placeholder (full screen)
-            Container(
-              color: const Color(0xFF1A1A2E),
-              child: const Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 56,
-                      backgroundColor: Colors.white12,
-                      child: Text('A', style: TextStyle(fontSize: 44, color: Colors.white)),
+            Positioned.fill(
+              child: _CallVideoSurface(
+                track: state.remoteVideo,
+                placeholder: Container(
+                  color: const Color(0xFF1A1A2E),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!state.remotePeerJoined) ...[
+                          const SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: CircularProgressIndicator(
+                              color: Colors.white54,
+                              strokeWidth: 3,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Waiting for the other person to join…',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ] else ...[
+                          const CircleAvatar(
+                            radius: 56,
+                            backgroundColor: Colors.white12,
+                            child: Text(
+                              'A',
+                              style: TextStyle(fontSize: 44, color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Aarav',
+                            style: TextStyle(color: Colors.white70, fontSize: 20),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Camera is off',
+                            style: TextStyle(color: Colors.white38, fontSize: 14),
+                          ),
+                        ],
+                      ],
                     ),
-                    SizedBox(height: 16),
-                    Text('Aarav', style: TextStyle(color: Colors.white70, fontSize: 20)),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -250,19 +320,30 @@ class _InCallView extends StatelessWidget {
                 ),
               ),
             ),
-            // Local self-view placeholder (bottom-right corner)
             Positioned(
               bottom: 100,
               right: 16,
-              child: Container(
-                width: 80,
-                height: 110,
-                decoration: BoxDecoration(
-                  color: Colors.white12,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Center(
-                  child: Icon(Icons.person, color: Colors.white54, size: 36),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: 80,
+                  height: 110,
+                  child: _CallVideoSurface(
+                    track: state.isCameraOn ? state.localVideo : null,
+                    setMirror: true,
+                    placeholder: ColoredBox(
+                      color: Colors.white12,
+                      child: Center(
+                        child: Icon(
+                          state.isCameraOn
+                              ? Icons.person
+                              : Icons.videocam_off_rounded,
+                          color: Colors.white54,
+                          size: 36,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -306,6 +387,32 @@ class _InCallView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Renders a 100ms video track or a fallback placeholder when unavailable.
+class _CallVideoSurface extends StatelessWidget {
+  const _CallVideoSurface({
+    required this.track,
+    this.setMirror = false,
+    this.placeholder,
+  });
+
+  final HMSVideoTrack? track;
+  final bool setMirror;
+  final Widget? placeholder;
+
+  @override
+  Widget build(BuildContext context) {
+    if (track == null) {
+      return placeholder ?? const ColoredBox(color: Color(0xFF1A1A2E));
+    }
+    return HMSVideoView(
+      key: ValueKey<String>(track!.trackId),
+      track: track!,
+      setMirror: setMirror,
+      scaleType: ScaleType.SCALE_ASPECT_FILL,
     );
   }
 }
@@ -451,7 +558,7 @@ class _DoneView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Great work. Your session with Aarav has been saved.',
+                UiCopy.sessionEnded,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey),
               ),

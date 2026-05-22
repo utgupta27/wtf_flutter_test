@@ -28,6 +28,11 @@ class OnboardingViewModel extends Notifier<bool> {
     );
     await ref.read(authRepositoryProvider).saveUser(profile);
     await ref.read(onboardingRepositoryProvider).setDone();
+    AppLog.i(
+      LogTag.auth,
+      'onboarding complete',
+      detail: 'trainerId=$trainerId name=${profile.name}',
+    );
     state = true;
     ref.invalidate(authViewModelProvider);
   }

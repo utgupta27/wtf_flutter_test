@@ -8,8 +8,12 @@ class AuthViewModel extends AsyncNotifier<User> {
   Future<User> build() async {
     final repo = ref.read(authRepositoryProvider);
     final existing = await repo.getUser(SeedUsers.trainer.id);
-    if (existing != null) return existing;
+    if (existing != null) {
+      AppLog.i(LogTag.auth, 'trainer session loaded', detail: 'id=${existing.id}');
+      return existing;
+    }
     await repo.saveUser(SeedUsers.trainer);
+    AppLog.i(LogTag.auth, 'trainer seeded', detail: 'id=${SeedUsers.trainer.id}');
     return SeedUsers.trainer;
   }
 }
